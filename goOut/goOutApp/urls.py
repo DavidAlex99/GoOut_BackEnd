@@ -15,13 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path
+# imortacion de las vistas
+from goOutApp import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('goOutApp.urls')),
+    path('', views.home, name="Home"),
+    path('menu/', views.menu, name="Menu"),
+    path('acerca/', views.acerca, name="Acerca"),
+    path('galeria/', views.galeria, name="Galeria"),
+    path('ubicacion/', views.ubicacion, name="Ubicacion"),
+    path('contacto/', views.contacto, name="Contacto"),
+    path('subirComida/', views.contacto, name="SubirComida"),
 ]
-
-urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
