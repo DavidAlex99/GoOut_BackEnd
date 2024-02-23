@@ -14,7 +14,9 @@ class Imagen(models.Model):
         return self.titulo
 
 class Evento(models.Model):
-    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
+    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE, related_name='imagen_evento')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -42,8 +44,8 @@ class Categoria(models.Model):
     
 class Alimento(models.Model):
     nombre = models.CharField(max_length=100)
-    precio = models.FloatField()
-    descripcion =models.TextField()
+    precio = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE, related_name='imagen_comida')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)

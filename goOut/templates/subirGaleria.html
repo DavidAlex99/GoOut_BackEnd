@@ -14,23 +14,23 @@
       <button id="btnGroupDrop4" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
       <div class="dropdown-menu" aria-labelledby="btnGroupDrop4">
         <a class="dropdown-item" href="#">Dropdown link</a>
-        <a class="dropdown-item" href="#">Dropdown link</a>
+        <a class="dropdown-item" href="#">hola link</a>
       </div>
     </div>
 </div>
-
-
+ 
+s
 <div class="contenedorFormulario">
 
     {% if "valid" in request.GET %}
-        <p>subida correcta de la comida</p>
+        <p>subida correcta de la imagen</p>
     {% endif %}
 
     
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <table style="color: white; margin: 20px auto;">
-            {{miFormularioComida.as_table}}
+            {{miFormularioImagen.as_table}}
         </table>
         <input type="submit" style="width: 150px;" value="Enviar">
     </form>

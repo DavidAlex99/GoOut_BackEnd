@@ -19,12 +19,19 @@ from django.urls import path
 # imortacion de las vistas
 from goOutApp import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('', views.home, name="Home"),
     path('menu/', views.menu, name="Menu"),
+    path('subirComida/', views.subirComida, name="SubirComida"),
     path('acerca/', views.acerca, name="Acerca"),
     path('galeria/', views.galeria, name="Galeria"),
+    path('subirImagen/', views.subirImagen, name="SubirImagen"),
     path('ubicacion/', views.ubicacion, name="Ubicacion"),
     path('contacto/', views.contacto, name="Contacto"),
-    path('subirComida/', views.contacto, name="SubirComida"),
+    
 ]
+
+urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

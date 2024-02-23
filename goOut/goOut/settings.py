@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'goOut.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'gates',
+        'NAME': 'goOut',
         'USER': 'postgres',       
         'POST': 5432,
         'HOST': '127.0.0.1',
