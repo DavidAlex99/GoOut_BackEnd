@@ -3,27 +3,17 @@ from django.db import models
 
 
 #subclases de Galeria
-class Imagen(models.Model):
-    titulo = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    archivo = models.ImageField(upload_to='evento')
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.titulo
-
 class Evento(models.Model):
     titulo = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
-    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE, related_name='imagen_evento')
+    imagen = models.ImageField(upload_to='imagen_evento')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
 # fin subclases de galeria 
 
 class Galeria(models.Model):
-    imagenes = models.ManyToManyField(Imagen)
+    eventos = models.ManyToManyField(Evento)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -46,7 +36,7 @@ class Alimento(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
-    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE, related_name='imagen_comida')
+    imagen = models.ImageField(upload_to='imagen_comida')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
@@ -77,7 +67,7 @@ class Menu(models.Model):
         return self.save()
 
 class Contacto(models.Model):
-    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='contacto')
     correo = models.EmailField()
     telefono = models.IntegerField()
     created=models.DateTimeField(auto_now_add=True)
@@ -87,7 +77,7 @@ class Contacto(models.Model):
         return self.save()
 
 class Ubicacion(models.Model):
-    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE, related_name='imagen_ubicacion')
+    imagen = models.ImageField(upload_to='imagen_ubicacion')
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
     created=models.DateTimeField(auto_now_add=True)
@@ -98,7 +88,7 @@ class Ubicacion(models.Model):
 
 class SobreNos(models.Model):
     descrpcion = models.TextField()
-    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE, related_name='imagen_sobre_nos')
+    imagen = models.ImageField(upload_to='imagen_sobre_nos')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 

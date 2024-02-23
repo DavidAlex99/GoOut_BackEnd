@@ -1,11 +1,9 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Alimento, Categoria, Galeria, Evento, Imagen, Menu, Contacto, Ubicacion, SobreNos, Emprendedor
+from .models import Alimento, Categoria, Galeria, Evento, Menu, Contacto, Ubicacion, SobreNos, Emprendedor
 
 # lo que va a aparecer en el admin
-class imagenAdmin(admin.ModelAdmin):
-    readonly_fields=('created', 'updated')
 
 class eventoAdmin(admin.ModelAdmin):
     readonly_fields=('created', 'updated')
@@ -35,7 +33,6 @@ class emprendedorAdmin(admin.ModelAdmin):
     readonly_fields=('created', 'updated')
 
 #regisrar alas tablas como las clases
-admin.site.register(Imagen, imagenAdmin)
 admin.site.register(Evento, eventoAdmin)
 admin.site.register(Galeria, galeriaAdmin)
 admin.site.register(Categoria, categoriaAdmin)

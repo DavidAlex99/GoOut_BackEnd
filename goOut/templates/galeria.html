@@ -8,61 +8,22 @@
 {% block content %}
 
 <div>
-    <button type="button" class="btn btn-primary" style="color: white;"><a href="{% url 'SubirImagen' %}">Agregar servicio</a></button>
+    <button type="button" class="btn btn-primary" style="color: white;"><a href="{% url 'SubirImagen' %}">Agregar evento</a></button>
 </div>
 
 <div class="row">
-    <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card bg-secondary mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card text-white bg-success mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card text-white bg-danger mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card text-white bg-warning mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card text-white bg-info mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card bg-light mb-3" style="max-width: 20rem;">
-        <div class="card-header">Header</div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-    <div class="card text-white bg-dark mb-3" style="max-width: 20rem;">
-        <div class="card-header">
-            Header
-        </div>
-        <div class="card-body">
-            <img class="img-fluid rounded about-heading-img mb-3 mb-lg-0" src="{% static 'assets/img/ejGaleria.png' %}" alt="..." />
-        </div>
-    </div>
-</div>
+    <!-- aqui se hace un for para cada servicio -->
+    {% for evento in eventos %}
 
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
+            <div class="card-header">{{evento.nombre}}</div>
+            <div class="card-body">
+                <img src="{{evento.imagen.url}}" class="card-img-top">
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 
 {% endblock %}

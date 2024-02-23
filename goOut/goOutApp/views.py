@@ -1,5 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .forms import EventoForm, ComidaForm
+# importacion de modelos para la visualizacion de los registros en la bbdd
+from .models import Evento, Alimento
 # Create your views here.
 
 #
@@ -8,7 +10,9 @@ def home(request):
 
 # vista para el menu
 def menu(request):
-    return render(request, "menu.html")
+    # aqui se renderizaran los eventos de la base de datos
+    alimentos = Alimento.objects.all()
+    return render(request, "menu.html", {"alimentos": alimentos})
 
 def subirComida(request):
     if request.method == "POST":
@@ -36,7 +40,9 @@ def ubicacion(request):
 
 # vista para la galeria
 def galeria(request):
-    return render(request, "galeria.html")
+    # aqui se renderizaran los eventos de la base de datos
+    eventos = Evento.objects.all()
+    return render(request, "galeria.html", {"eventos": eventos})
 
 # para los formularios para subir imagen 
 def subirImagen(request):
