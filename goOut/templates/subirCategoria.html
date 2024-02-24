@@ -1,0 +1,40 @@
+<!-- se indic que va a heredar de base.html -->
+{% extends "base.html" %}
+
+<!-- se carga lo que esta en la carpeta static -->
+{% load static %}  
+
+<!-- aqui va el contenido cambiante -->
+{% block content %}
+
+<!-- boton de cancelar -->
+<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+    <button type="button" class="btn btn-danger">Danger</button>
+    <div class="btn-group" role="group">
+      <button id="btnGroupDrop4" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+      <div class="dropdown-menu" aria-labelledby="btnGroupDrop4">
+        <a class="dropdown-item" href="#">Dropdown link</a>
+        <a class="dropdown-item" href="#">Dropdown link</a>
+      </div>
+    </div>
+</div>
+
+
+<div class="contenedorFormulario">
+
+    {% if "valid" in request.GET %}
+        <p>subida correcta de la categoria</p>
+    {% endif %}
+
+    
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table style="color: white; margin: 20px auto;">
+            {{miFormularioCategoria.as_table}}
+        </table>
+        <input type="submit" style="width: 150px;" value="Enviar">
+    </form>
+</div>
+{{request.POST}}
+
+{% endblock %}

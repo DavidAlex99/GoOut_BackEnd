@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MinValueValidator
 
 
 #subclases de Galeria
@@ -34,7 +34,7 @@ class Categoria(models.Model):
     
 class Alimento(models.Model):
     nombre = models.CharField(max_length=100)
-    precio = models.CharField(max_length=100)
+    precio = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.0)])
     descripcion = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to='imagen_comida')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)

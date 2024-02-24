@@ -7,23 +7,45 @@
 <!-- aqui va el contenido cambiante -->
 {% block content %}
 
-<div>
-    <button type="button" class="btn btn-primary" style="color: white;"><a href="{% url 'SubirComida' %}">Agregar alimento</a></button>
+<div class="row">
+    {% for categoria in categorias %}
+    <div>
+        <span class="badge bg-primary">{{categoria.nombre}}</span>
+    </div>
+    
+    {% endfor %}
 </div>
+
+<div></div>
+<div>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirComida' %}" style="color: white;">Agregar alimento</a></button>
+</div>
+
+<div>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoria' %}" style="color: aliceblue;">Agregar categoria</a></button>
+</div>
+
+<!-- categorias disponibles -->
+
 
 <div class="row">
     <!-- aqui se hace un for para cada servicio -->
     {% for alimento in alimentos %}
-
-    <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
-            <div class="card-header">{{alimento.nombre}}</div>
-            <div class="card-body">
-                <img src="{{alimento.imagen.url}}" class="card-img-top">
+        <div class="col-md-4">
+            <div class="card border-primary mb-3" style="max-width: 20rem;">
+                <div class="card-header">Header</div>
+                <div class="card-body">
+                    <img src="{{alimento.imagen.url}}" class="card-img-top">
+                    <h4 class="card-title">{{alimento.nombre}}</h4>
+                    <p class="card-text">{{alimento.precio}}</p>
+                </div>
             </div>
         </div>
-    </div>
+        
     {% endfor %}
+
 </div>
+
+
 
 {% endblock %}
