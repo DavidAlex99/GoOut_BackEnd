@@ -5,6 +5,11 @@ class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento
         fields = ['titulo', 'descripcion', 'imagen']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }
 
 class ComidaForm(forms.ModelForm):
     class Meta:
@@ -31,6 +36,7 @@ class UbicacionForm(forms.ModelForm):
     class Meta:
         model: Ubicacion
         fields = ['direccion', 'direccion_secundaria', 'imagen']
+
 
 class ContactoForm(forms.ModelForm):
     class Meta:
