@@ -1,5 +1,11 @@
 from django import forms
 from .models import Evento, Alimento, Categoria, Contacto, Ubicacion, SobreNos
+from django.contrib.auth.forms import AuthenticationForm
+
+# formulario personalizado para el inicio de sesion
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de usuario'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}))
 
 class EventoForm(forms.ModelForm):
     class Meta:

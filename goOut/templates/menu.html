@@ -18,11 +18,11 @@
 
 <div></div>
 <div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirComida' %}" style="color: white;">Agregar alimento</a></button>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirComida' username=user.username %}" style="color: white;">Agregar alimento</a></button>
 </div>
 
 <div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoria' %}" style="color: aliceblue;">Agregar categoria</a></button>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoria' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
 </div>
 
 <!-- categorias disponibles -->

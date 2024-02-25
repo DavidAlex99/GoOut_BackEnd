@@ -21,17 +21,27 @@ from goOutApp import views
 
 from django.conf import settings
 from django.conf.urls.static import static
+# para el inicio de sesion
+from .views import user_profile, CustomLoginView, register
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('', views.home, name="Home"),
-    path('menu/', views.menu, name="Menu"),
-    path('subirComida/', views.subirComida, name="SubirComida"),
-    path('subirCategoria/', views.subirCategoria, name="SubirCategoria"),
-    path('acerca/', views.acerca, name="Acerca"),
-    path('galeria/', views.galeria, name="Galeria"),
-    path('subirImagen/', views.subirImagen, name="SubirImagen"),
-    path('ubicacion/', views.ubicacion, name="Ubicacion"),
-    path('contacto/', views.contacto, name="Contacto"),
+    path('<str:username>/menu/', views.menu, name="Menu"),
+    path('<str:username>/subirComida/', views.subirComida, name="SubirComida"),
+    path('<str:username>/subirCategoria/', views.subirCategoria, name="SubirCategoria"),
+    path('<str:username>/acerca/', views.acerca, name="Acerca"),
+    path('<str:username>/galeria/', views.galeria, name="Galeria"),
+    path('<str:username>/subirImagen/', views.subirImagen, name="SubirImagen"),
+    path('<str:username>/ubicacion/', views.ubicacion, name="Ubicacion"),
+    path('<str:username>/contacto/', views.contacto, name="Contacto"),
+    # para el inciio de sesion
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('register/', register, name='register'),
+    path('<str:username>/', user_profile, name='user_profile'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+
     
 ]
 

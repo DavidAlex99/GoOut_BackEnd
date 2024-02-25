@@ -8,7 +8,7 @@
 {% block content %}
 
 <div>
-    <button type="button" class="btn btn-primary" style="color: white;"><a href="{% url 'SubirImagen' %}">Agregar evento</a></button>
+    <button type="button" class="btn btn-primary" style="color: white;"><a href="{% url 'SubirImagen' username=user.username %}">Agregar evento</a></button>
 </div>
 
 <div class="row">

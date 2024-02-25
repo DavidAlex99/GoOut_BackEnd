@@ -139,3 +139,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACK='bootstrap4'
 CRISPY_TEMPLATE_PACK='bootstrap4'
+
+LOGIN_REDIRECT_URL = '/usuario/'
+LOGIN_URL = 'login'
+
+LOGIN_REDIRECT_URL = 'user_profile'  # Asegúrate de que 'user_profile' sea el nombre de una de tus vistas.
+LOGOUT_REDIRECT_URL = 'login'  # Redirige a los usuarios a la página de inicio de sesión después de cerrar sesión.
