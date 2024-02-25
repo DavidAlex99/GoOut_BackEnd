@@ -21,7 +21,11 @@ class ComidaForm(forms.ModelForm):
 class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
-        fields = ['nombre']
+        fields = ['nombre', 'imagen']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }
 
 class UbicacionForm(forms.ModelForm):
     class Meta:

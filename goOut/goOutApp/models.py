@@ -31,6 +31,7 @@ class Galeria(models.Model):
     
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
+    imagen = models.ImageField(upload_to='imagen_categoria')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 

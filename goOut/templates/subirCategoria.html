@@ -3,7 +3,7 @@
 
 <!-- se carga lo que esta en la carpeta static -->
 {% load static %}  
-
+{% load crispy_forms_tags %}
 <!-- aqui va el contenido cambiante -->
 {% block content %}
 
@@ -20,20 +20,22 @@
 </div>
 
 
-<div class="contenedorFormulario">
+<div class="upload-field">
 
-    {% if "valid" in request.GET %}
-        <p>subida correcta de la categoria</p>
-    {% endif %}
+    <div class="ìmage-field">'
+        <img id="image-preview" src="{% static 'assets/img/defaultUpload.jpg' %}" alt="Vista previa de la imagen" style="max-width: 100%; display: none;"/>
+    </div>
 
-    
-    <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <table style="color: white; margin: 20px auto;">
-            {{miFormularioCategoria.as_table}}
-        </table>
-        <input type="submit" style="width: 150px;" value="Enviar">
-    </form>
+    <div class="text-field">
+        {% if "valid" in request.GET %}
+            <p>subida correcta de la categoria</p>
+        {% endif %}      
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{miFormularioCategoria|crispy}}
+            <input type="submit" style="width: 150px;" value="Enviar">
+        </form>       
+    </div>
 </div>
 {{request.POST}}
 
