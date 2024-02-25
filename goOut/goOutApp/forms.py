@@ -10,6 +10,13 @@ class ComidaForm(forms.ModelForm):
     class Meta:
         model = Alimento
         fields = ['nombre', 'precio', 'descripcion', 'categoria', 'imagen']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -19,12 +26,12 @@ class CategoriaForm(forms.ModelForm):
 class UbicacionForm(forms.ModelForm):
     class Meta:
         model: Ubicacion
-        fields = ['imagen', 'titulo', 'descripcion']
+        fields = ['direccion', 'direccion_secundaria', 'imagen']
 
 class ContactoForm(forms.ModelForm):
     class Meta:
         model: Contacto
-        fields = ['imagen', 'correo', 'telefono']
+        fields = ['emprendedor', 'correo', 'telefono', 'imagen']
 
 class SobreNosForm(forms.ModelForm):
     class Meta:

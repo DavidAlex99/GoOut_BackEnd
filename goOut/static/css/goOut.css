@@ -1,0 +1,43 @@
+.card {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card-img-top {
+    height: 200px; 
+    object-fit: cover; 
+    width: 100%;
+}
+
+.card-body {
+    min-height: 150px; 
+}
+
+.upload-field {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    padding: 10px;
+  }
+  
+  .text-field {
+    float: left;
+    padding: 15px;
+    border: 1px solid red;
+    margin-left: 10px;
+  }
+  
+  .ìmage-field {
+    display: flex; /* Usa flexbox para centrar elementos dentro del div */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 400px; /* Altura fija para el div, ajústala según necesites */
+    border: 1px solid #ccc; /* Solo para visualización, puedes quitar esta línea */
+    margin-right: 20px; /* Separación entre los divs, ajústalo según necesites */
+  }
+  
+  #image-preview {
+    max-width: 100%; /* Asegura que la imagen no exceda el tamaño del contenedor */
+    max-height: 100%; /* Asegura que la imagen no exceda la altura del contenedor */
+    display: block; /* La imagen se muestra como un bloque */
+  }

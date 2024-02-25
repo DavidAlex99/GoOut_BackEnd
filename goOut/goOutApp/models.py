@@ -1,6 +1,12 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.contrib.auth.models import User
 
+class Emprendedor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    edad = models.IntegerField()
+    created=models.DateTimeField(auto_now_add=True)
+    updated=models.DateTimeField(auto_now_add=True)
 
 #subclases de Galeria
 class Evento(models.Model):
@@ -66,10 +72,18 @@ class Menu(models.Model):
         self.alimentos.add(alimento)
         return self.save()
 
+class Emprendimiento(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    created=models.DateTimeField(auto_now_add=True)
+    updated=models.DateTimeField(auto_now_add=True)
+
 class Contacto(models.Model):
     imagen = models.ImageField(upload_to='contacto')
     correo = models.EmailField()
     telefono = models.IntegerField()
+    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -78,8 +92,8 @@ class Contacto(models.Model):
 
 class Ubicacion(models.Model):
     imagen = models.ImageField(upload_to='imagen_ubicacion')
-    titulo = models.CharField(max_length=100)
-    descripcion = models.TextField()
+    direccion = models.CharField(max_length=255)
+    direccion_secundaria = models.CharField(max_length=255, blank=True, null=True)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -96,11 +110,3 @@ class SobreNos(models.Model):
         self.descrpcion = descripcion
         return self.save()
     
-class Emprendedor(models.Model):
-    galeria = models.OneToOneField(Galeria, on_delete=models.CASCADE)
-    menu = models.OneToOneField(Menu, on_delete=models.CASCADE)
-    sobre_nos = models.OneToOneField(SobreNos, on_delete=models.CASCADE)
-    contacto = models.OneToOneField(Contacto, on_delete=models.CASCADE)
-    ubicacion = models.OneToOneField(Ubicacion, on_delete=models.CASCADE)
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
