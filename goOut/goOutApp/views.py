@@ -25,7 +25,7 @@ def subirComida(request):
         formulario_servicio = ComidaForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
             formulario_servicio.save()  
-            return redirect('Home') 
+            return redirect('Menu') 
         else:
             print(formulario_servicio.errors)
     else:
@@ -84,7 +84,7 @@ def subirImagen(request):
         formulario_servicio = EventoForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
             formulario_servicio.save()  
-            return redirect('Home') 
+            return redirect('Galeria') 
         else:
             print(formulario_servicio.errors)
     else:
@@ -99,7 +99,7 @@ def subirCategoria(request):
         formulario_servicio = CategoriaForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
             formulario_servicio.save()  
-            return redirect('Home') 
+            return redirect('Menu') 
         else:
             print(formulario_servicio.errors)
     else:

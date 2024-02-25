@@ -2,9 +2,18 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 
+class Emprendimiento(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
+    created=models.DateTimeField(auto_now_add=True)
+    updated=models.DateTimeField(auto_now_add=True)
+
+# este modelo es el que presetara como uno de los tantos emprendimientos
 class Emprendedor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nombre = models.OneToOneField(User, on_delete=models.CASCADE)
     edad = models.IntegerField()
+    # emprendedor puede tener muchos emprendimientos]
+    emprendimientos = models.ManyToManyField(Emprendimiento)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -73,15 +82,10 @@ class Menu(models.Model):
         self.alimentos.add(alimento)
         return self.save()
 
-class Emprendimiento(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=100)
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
+
 
 class Contacto(models.Model):
-    imagen = models.ImageField(upload_to='contacto')
+    imagen = models.ImageField(upload_to='imagen_contacto')
     correo = models.EmailField()
     telefono = models.IntegerField()
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)

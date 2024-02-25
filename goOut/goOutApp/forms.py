@@ -40,10 +40,20 @@ class UbicacionForm(forms.ModelForm):
 
 class ContactoForm(forms.ModelForm):
     class Meta:
-        model: Contacto
+        model = Contacto
         fields = ['emprendedor', 'correo', 'telefono', 'imagen']
+        widgets = {
+            'emprendedor': forms.Select(attrs={'class': 'form-control'}),
+            'correo': forms.EmailInput(attrs={'class': 'form-control'}),
+            'telefono': forms.NumberInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }
 
 class SobreNosForm(forms.ModelForm):
     class Meta:
-        model: SobreNos
-        fields = ['descripcion', 'imagen']
+        model = SobreNos
+        fields = ['descrpcion', 'imagen']
+        widgets = {
+            'descrpcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }
