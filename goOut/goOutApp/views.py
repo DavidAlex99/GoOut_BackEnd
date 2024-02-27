@@ -46,9 +46,10 @@ def menu(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
-     # aqui se renderizaran los eventos de la base de datos
-    categorias = Categoria.objects.all()
-    alimentos = Alimento.objects.all()
+     # aqui se renderizaran los eventos de la base de datos de acuerdo al emprendedor
+    emprendedor = request.user.emprendedor
+    categorias = Categoria.objects.filter(emprendedor=emprendedor)
+    alimentos = Alimento.objects.filter(emprendedor=emprendedor)
     context = {
         # los elementos de la bbdd que se van a renderizar
         "categorias": categorias,
@@ -65,7 +66,9 @@ def subirComida(request, username):
     if request.method == "POST":
         formulario_servicio = ComidaForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
-            formulario_servicio.save()  
+            comida = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
+            comida.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            comida.save()  # Ahora guarda el objeto comida con el emprendedor asignado
             return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
@@ -130,8 +133,9 @@ def galeria(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
-    # aqui se renderizaran los eventos de la base de datos
-    eventos = Evento.objects.all()
+    # aqui se renderizaran los eventos de la base de datos de acuerdoal emprendedor
+    emprendedor = request.user.emprendedor
+    eventos = Evento.objects.filter(emprendedor=emprendedor)
     return render(request, "galeria.html", {"eventos": eventos})
 
 # para los formularios para subir imagen 
@@ -143,7 +147,9 @@ def subirImagen(request, username):
     if request.method == "POST":
         formulario_servicio = EventoForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
-            formulario_servicio.save()  
+            evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
+            evento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
             return redirect('Galeria', username=username) 
         else:
             print(formulario_servicio.errors)
@@ -162,7 +168,9 @@ def subirCategoria(request, username):
     if request.method == "POST":
         formulario_servicio = CategoriaForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
-            formulario_servicio.save()  
+            categoria = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
+            categoria.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            categoria.save()  # Ahora guarda el objeto comida con el emprendedor asignado
             return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
