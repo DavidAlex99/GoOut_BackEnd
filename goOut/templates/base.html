@@ -38,10 +38,18 @@
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Galeria' username=user.username %}">Galeria</a></li>
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Contacto' username=user.username %}">Contacto</a></li>
                         
-                            <form method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">Cerrar sesión</button>
-                            </form>
+                            <li class="nav-item">
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Cerrar sesión</button>
+                                </form>
+                            </li>
+
+                            {% else %}
+                            <!-- Enlaces para usuarios no autenticados -->
+                                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'login' %}">Iniciar Sesión</a></li>
+                                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'register' %}">Registrarse</a></li>
+                            
                         {% endif %}
                         
                     

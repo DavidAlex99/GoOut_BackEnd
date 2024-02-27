@@ -10,10 +10,9 @@ class Emprendimiento(models.Model):
 
 # este modelo es el que presetara como uno de los tantos emprendimientos
 class Emprendedor(models.Model):
-    nombre = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     edad = models.IntegerField()
-    # emprendedor puede tener muchos emprendimientos]
-    emprendimientos = models.ManyToManyField(Emprendimiento)
+    nombre = models.CharField(max_length=100)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 

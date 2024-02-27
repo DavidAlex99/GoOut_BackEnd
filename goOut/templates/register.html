@@ -1,12 +1,32 @@
 {% extends 'base.html' %}
-
+{% load static %}  
+{% load crispy_forms_tags %}
 {% block content %}
   <div class="container mt-4">
     <h2>Registrarse</h2>
     <form method="post" action="{% url 'register' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-success">Registrarse</button>
+        {% csrf_token %}
+        
+        <!-- Campos del formulario -->
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        <br>
+        <br>
+        {{ form.password1.label_tag }}
+        {{ form.password1 }}
+        <br>
+        <br>
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+        <br>
+        <br>
+        {{ form.nombre.label_tag }}
+        {{ form.nombre }}
+        <br>
+        {{ form.edad.label_tag }}
+        {{ form.edad }}
+        <br>
+        <button type="submit">Registrarse</button>
     </form>
     <p>¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
   </div>

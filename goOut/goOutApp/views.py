@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, ComidaForm, CategoriaForm, SobreNosForm, UbicacionForm, ContactoForm
+from .forms import EventoForm, ComidaForm, CategoriaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, Alimento, Categoria
+from .models import Evento, Alimento, Categoria, Emprendedor
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -30,13 +30,13 @@ def user_profile(request, username):
 # La vista para el registro de usuarios
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = EmprendedorRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('user_profile', username=user.username)
     else:
-        form = UserCreationForm()
+        form = EmprendedorRegisterForm()
     return render(request, 'register.html', {'form': form})
 
 def home(request):
@@ -83,7 +83,7 @@ def acerca(request, username):
         formulario_servicio = SobreNosForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
             formulario_servicio.save()  
-            return redirect('Home', username=username) 
+            return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
     else:
@@ -100,7 +100,7 @@ def contacto(request, username):
         formulario_servicio = ContactoForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
             formulario_servicio.save()  
-            return redirect('Home', username=username) 
+            return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
     else:
@@ -118,7 +118,7 @@ def ubicacion(request, username):
         formulario_servicio = UbicacionForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
             formulario_servicio.save()  
-            return redirect('Home', username=username) 
+            return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
     else:

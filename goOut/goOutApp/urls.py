@@ -41,6 +41,7 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('<str:username>/', user_profile, name='user_profile'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    
 
     
 ]

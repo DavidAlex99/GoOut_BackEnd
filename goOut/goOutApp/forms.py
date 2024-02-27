@@ -1,11 +1,41 @@
 from django import forms
-from .models import Evento, Alimento, Categoria, Contacto, Ubicacion, SobreNos
+from .models import Evento, Alimento, Categoria, Contacto, Ubicacion, SobreNos, Emprendedor
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import Emprendedor
 
 # formulario personalizado para el inicio de sesion
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de usuario'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}))
+
+# formulario para muestreo para actualizar informacion como 
+# nobre, edad desues de registrar
+class EmprendedorRegisterForm(UserCreationForm):
+    # definicion de los campos del emprendedor
+    nombre = forms.CharField(
+        label='Ingrese su nombre',  # Texto que se mostrará para el campo nombre
+        max_length=100, 
+        required=True, 
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    edad = forms.IntegerField(
+        label='Ingrese su edad',  # Texto que se mostrará para el campo edad
+        required=True, 
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields + ('edad', 'nombre',)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            Emprendedor.objects.create(user=user, edad=self.cleaned_data['edad'], nombre=self.cleaned_data['nombre'])
+        return user
 
 class EventoForm(forms.ModelForm):
     class Meta:

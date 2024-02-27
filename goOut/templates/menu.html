@@ -33,11 +33,11 @@
     {% for alimento in alimentos %}
         <div class="col-md-4">
             <div class="card border-primary mb-3" style="max-width: 20rem;">
-                <div class="card-header">Header</div>
+                <div class="card-header">{{alimento.nombre}}</div>
                 <div class="card-body">
                     <img src="{{alimento.imagen.url}}" class="card-img-top">
-                    <h4 class="card-title">{{alimento.nombre}}</h4>
-                    <p class="card-text">{{alimento.precio}}</p>
+
+                    <p class="card-text">Precio: {{alimento.precio}}</p>
                 </div>
             </div>
         </div>
