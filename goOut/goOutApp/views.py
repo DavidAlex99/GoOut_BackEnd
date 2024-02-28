@@ -57,25 +57,26 @@ def menu(request, username):
     }
     return render(request, "menu.html", context)
 
-
 def subirComida(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+    # se pasa el emprendedor que esta logueado actualmente
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
     
+    emprendedor = request.user.emprendedor
     if request.method == "POST":
-        formulario_servicio = ComidaForm(request.POST, request.FILES) 
+        # se pasa como argumento adicional el emprendedor actual al forms
+        formulario_servicio = ComidaForm(request.POST, request.FILES, emprendedor=emprendedor) 
         if formulario_servicio.is_valid():
-            comida = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            comida.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
-            comida.save()  # Ahora guarda el objeto comida con el emprendedor asignado
+            comida = formulario_servicio.save(commit=False) # Guarda el formulario pero no el objeto
+            comida.emprendedor = emprendedor  # Asigna el usuario logueado al objeto comida
+            comida.save()
             return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
     else:
-        formulario_servicio = ComidaForm()
+        # Pasar el emprendedor al inicializar el formulario para filtrar las categorías
+        formulario_servicio = ComidaForm(emprendedor=emprendedor)
     return render(request, "subirComida.html", {'miFormularioComida': formulario_servicio})
-
 
 def acerca(request, username):
 # Asegúrate de que el usuario logueado es el mismo que el del URL.

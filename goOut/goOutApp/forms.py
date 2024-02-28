@@ -58,6 +58,13 @@ class ComidaForm(forms.ModelForm):
             'categoria': forms.Select(attrs={'class': 'form-control'}),
             'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
+# constructor que hace que se pase como argumento adicional un emprendedor el cual se usara para filtrara
+# por las categorias que son propias del emprendedor
+    def __init__(self, *args, **kwargs):
+        emprendedor = kwargs.pop('emprendedor', None)
+        super(ComidaForm, self).__init__(*args, **kwargs)
+        if emprendedor:
+            self.fields['categoria'].queryset = Categoria.objects.filter(emprendedor=emprendedor)
 
 class CategoriaForm(forms.ModelForm):
     class Meta:

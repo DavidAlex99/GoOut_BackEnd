@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Alimento, Categoria, Galeria, Evento, Menu, Contacto, Ubicacion, SobreNos, Emprendedor
+from .models import Alimento, Categoria, Galeria, Evento, Contacto, Ubicacion, SobreNos, Emprendedor
 
 # lo que va a aparecer en el admin
 
@@ -15,9 +15,6 @@ class categoriaAdmin(admin.ModelAdmin):
     readonly_fields=('created', 'updated')
 
 class alimentoAdmin(admin.ModelAdmin):
-    readonly_fields=('created', 'updated')
-
-class menuAdmin(admin.ModelAdmin):
     readonly_fields=('created', 'updated')
 
 class contactoAdmin(admin.ModelAdmin):
@@ -37,7 +34,6 @@ admin.site.register(Evento, eventoAdmin)
 admin.site.register(Galeria, galeriaAdmin)
 admin.site.register(Categoria, categoriaAdmin)
 admin.site.register(Alimento, alimentoAdmin)
-admin.site.register(Menu, menuAdmin)
 admin.site.register(Contacto, contactoAdmin)
 admin.site.register(Ubicacion, ubicacionAdmin)
 admin.site.register(SobreNos, sobreNosAdmin)

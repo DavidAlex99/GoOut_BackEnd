@@ -17,8 +17,6 @@ class Emprendimiento(models.Model):
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
-
-
 #subclases de Galeria
 class Evento(models.Model):
     titulo = models.CharField(max_length=100)
@@ -58,8 +56,8 @@ class Alimento(models.Model):
     precio = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.0)])
     descripcion = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to='imagen_comida')
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -77,19 +75,6 @@ class Alimento(models.Model):
     # como aparecera en el panel de administracion
     def __str__(self):
         return self.nombre
-
-# fin subclases de menu
-class Menu(models.Model):
-    alimentos = models.ManyToManyField(Alimento)
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
-
-    def agregar_alimento(self, alimento):
-        self.alimentos.add(alimento)
-        return self.save()
-
-
 
 class Contacto(models.Model):
     imagen = models.ImageField(upload_to='imagen_contacto')
