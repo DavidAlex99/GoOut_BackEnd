@@ -35,7 +35,7 @@
                         {% if request.user.is_authenticated %}
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Acerca' username=user.username %}">Acerca de nosotros</a></li>
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Menu' username=user.username %}">Menu</a></li>
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Galeria' username=user.username %}">Galeria</a></li>
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Evento' username=user.username %}">Evento</a></li>
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Contacto' username=user.username %}">Contacto</a></li>
                         
                             <li class="nav-item">

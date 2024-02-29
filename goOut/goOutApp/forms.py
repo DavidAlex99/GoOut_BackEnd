@@ -1,5 +1,5 @@
 from django import forms
-from .models import Evento, Comida, CategoriaComida, Contacto, Ubicacion, SobreNos, Emprendedor
+from .models import Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, Ubicacion, SobreNos, Emprendedor
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -44,6 +44,15 @@ class EventoForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+        }
+
+class CategoriaEventoForm(forms.ModelForm):
+    class Meta:
+        model = CategoriaEvento
+        fields = ['nombre', 'imagen']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
 

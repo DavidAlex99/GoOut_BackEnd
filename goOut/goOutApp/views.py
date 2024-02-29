@@ -146,7 +146,7 @@ def galeria(request, username):
     return render(request, "galeria.html", {"eventos": eventos})
 
 # para los formularios para subir imagen 
-def subirImagen(request, username):
+def subirEvento(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
@@ -157,12 +157,12 @@ def subirImagen(request, username):
             evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
             evento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
             evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
-            return redirect('Galeria', username=username) 
+            return redirect('Evento', username=username) 
         else:
             print(formulario_servicio.errors)
     else:
         formulario_servicio = EventoForm()
-    return render(request, "subirGaleria.html", {'miFormularioImagen': formulario_servicio})
+    return render(request, "subirEvento.html", {'miFormularioImagen': formulario_servicio})
 
 
 
