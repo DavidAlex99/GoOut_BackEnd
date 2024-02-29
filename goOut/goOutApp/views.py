@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, ComidaForm, CategoriaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
+from .forms import EventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, Alimento, Categoria, Emprendedor
+from .models import Evento, Comida, CategoriaComida, Emprendedor
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -9,6 +9,11 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.db import transaction
+from django.http import HttpResponseNotAllowed
+import os
 
 # La vista personalizada para el inicio de sesión
 class CustomLoginView(LoginView):
@@ -48,12 +53,13 @@ def menu(request, username):
         return redirect('user_profile', username=request.user.username)
      # aqui se renderizaran los eventos de la base de datos de acuerdo al emprendedor
     emprendedor = request.user.emprendedor
-    categorias = Categoria.objects.filter(emprendedor=emprendedor)
-    alimentos = Alimento.objects.filter(emprendedor=emprendedor)
+    categoriasComida = CategoriaComida.objects.filter(emprendedor=emprendedor)
+    comidas = Comida.objects.filter(emprendedor=emprendedor)
     context = {
         # los elementos de la bbdd que se van a renderizar
-        "categorias": categorias,
-        "alimentos": alimentos,
+        "categoriasComida": categoriasComida,
+        "comidas": comidas,
+        "username": username,
     }
     return render(request, "menu.html", context)
 
@@ -161,20 +167,64 @@ def subirImagen(request, username):
 
 
 
-def subirCategoria(request, username):
+def subirCategoriaComida(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
 
     if request.method == "POST":
-        formulario_servicio = CategoriaForm(request.POST, request.FILES) 
+        formulario_servicio = CategoriaComidaForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
-            categoria = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            categoria.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
-            categoria.save()  # Ahora guarda el objeto comida con el emprendedor asignado
+            categoriaComida = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
+            categoriaComida.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            categoriaComida.save()  # Ahora guarda el objeto comida con el emprendedor asignado
             return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
     else:
-        formulario_servicio = CategoriaForm()
-    return render(request, "subirCategoria.html", {'miFormularioCategoria': formulario_servicio})
+        formulario_servicio = CategoriaComidaForm()
+    return render(request, "subirCategoriaComida.html", {'miFormularioCategoriaComida': formulario_servicio})
+
+@login_required
+def eliminarCategoriaComida(request, username, categoriaComida_id):
+    # Solo permitir esta acción si el método es POST y el usuario está autenticado
+    if request.method == "POST" and request.user.username == username:
+        categoria = get_object_or_404(CategoriaComida, id=categoriaComida_id, emprendedor=request.user.emprendedor)
+        
+         # Eliminar las imágenes de los alimentos asociados a la categoría
+        comidas = Comida.objects.filter(categoriaComida=categoria)
+        for comida in comidas:
+            if comida.imagen and os.path.isfile(comida.imagen.path):
+                os.remove(comida.imagen.path)
+            comida.delete()  # Eliminar la instancia de Comida
+
+        # Eliminar la imagen de la categoría
+        if categoria.imagen and os.path.isfile(categoria.imagen.path):
+            os.remove(categoria.imagen.path)
+        
+        categoria.delete()  # Eliminar la instancia de CategoriaComida
+        messages.success(request, "Categoría y alimentos asociados eliminados correctamente.")
+        return redirect('Menu', username=username)
+
+    else:
+        messages.error(request, "No se puede eliminar la categoría.")
+        return redirect('Menu', username=username)
+
+@login_required
+def eliminarComida(request, username, comida_id):
+
+    # Asegúrate de que el método es POST y que el usuario está autenticado
+    if request.method == "POST" and request.user.username == username:
+        comida = get_object_or_404(Comida, id=comida_id, emprendedor=request.user.emprendedor)
+        
+        # Eliminar la imagen asociada con la comida, si existe
+        if comida.imagen and os.path.isfile(comida.imagen.path):
+            os.remove(comida.imagen.path)
+        
+        comida.delete()  # Elimina la instancia de Comida
+        
+        messages.success(request, "Comida eliminada correctamente.")
+        return redirect('Menu', username=username)
+    else:
+        messages.error(request, "No se puede eliminar la comida.")
+        return redirect('Menu', username=username)

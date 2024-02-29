@@ -8,9 +8,23 @@
 {% block content %}
 
 <div class="row">
-    {% for categoria in categorias %}
-    <div>
-        <span class="badge bg-primary">{{categoria.nombre}}</span>
+    {% for categoriaComida in categoriasComida %}
+    <div class="col-md-4">
+        <div class="card border-primary mb-3" style="max-width: 20rem;">
+            <div class="card-header">{{categoriaComida.nombre}}</div>
+            <div class="card-body">
+                <img src="{{categoriaComida.imagen.url}}" class="card-img-top">
+                <!-- se usa formulario en produccion para eliminar la categoria -->
+                <!-- se usa un formulario por custiones d e seguridad por ataques csrf -->
+                <form method="post" action="{% url 'eliminarCategoriaComida' username=username categoriaComida_id=categoriaComida.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar esta categoría y todos los alimentos asociados?');">
+                        Eliminar Categoría
+                    </button>
+                </form>
+
+            </div>
+        </div>
     </div>
     
     {% endfor %}
@@ -22,7 +36,7 @@
 </div>
 
 <div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoria' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaComida' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
 </div>
 
 <!-- categorias disponibles -->
@@ -30,14 +44,22 @@
 
 <div class="row">
     <!-- aqui se hace un for para cada servicio -->
-    {% for alimento in alimentos %}
+    {% for comida in comidas %}
         <div class="col-md-4">
             <div class="card border-primary mb-3" style="max-width: 20rem;">
-                <div class="card-header">{{alimento.nombre}}</div>
+                <div class="card-header">{{comida.nombre}}</div>
                 <div class="card-body">
-                    <img src="{{alimento.imagen.url}}" class="card-img-top">
+                    <img src="{{comida.imagen.url}}" class="card-img-top">
 
-                    <p class="card-text">Precio: {{alimento.precio}}</p>
+                    <p class="card-text">Precio: {{comida.precio}}</p>
+
+                    <!-- formulario para eliminar una comida -->
+                    <form method="post" action="{% url 'eliminarComida' username=username comida_id=comida.id %}">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar esta comida?');">
+                            Eliminar Comida
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -45,7 +67,6 @@
     {% endfor %}
 
 </div>
-
 
 
 {% endblock %}

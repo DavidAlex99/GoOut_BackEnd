@@ -29,7 +29,7 @@ urlpatterns = [
     path('', views.home, name="Home"),
     path('<str:username>/menu/', views.menu, name="Menu"),
     path('<str:username>/subirComida/', views.subirComida, name="SubirComida"),
-    path('<str:username>/subirCategoria/', views.subirCategoria, name="SubirCategoria"),
+    path('<str:username>/subirCategoriaComida/', views.subirCategoriaComida, name="SubirCategoriaComida"),
     path('<str:username>/acerca/', views.acerca, name="Acerca"),
     path('<str:username>/galeria/', views.galeria, name="Galeria"),
     path('<str:username>/subirImagen/', views.subirImagen, name="SubirImagen"),
@@ -41,6 +41,9 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('<str:username>/', user_profile, name='user_profile'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    # para eliminar comida y categorias
+    path('<str:username>/menu/eliminarCategoriaComida/<int:categoriaComida_id>/', views.eliminarCategoriaComida, name='eliminarCategoriaComida'),
+    path('<str:username>/menu/eliminarComida/<int:comida_id>/', views.eliminarComida, name='eliminarComida'),
     
 
     

@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 # este modelo es el que presetara como uno de los tantos emprendimientos
 class Emprendedor(models.Model):
@@ -17,14 +19,23 @@ class Emprendimiento(models.Model):
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
+class CategoriaEvento(models.Model):
+    nombre = models.CharField(max_length=100)
+    imagen = models.ImageField(upload_to='imagen_categoria_evento')
+    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    created=models.DateTimeField(auto_now_add=True)
+    updated=models.DateTimeField(auto_now_add=True)
+
 #subclases de Galeria
 class Evento(models.Model):
     titulo = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to='imagen_evento')
+    categoriaEvento = models.ForeignKey(CategoriaEvento, on_delete=models.CASCADE)
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
+
 
 # fin subclases de galeria 
 
@@ -40,9 +51,9 @@ class Galeria(models.Model):
 
 # subclases de menu
     
-class Categoria(models.Model):
+class CategoriaComida(models.Model):
     nombre = models.CharField(max_length=100)
-    imagen = models.ImageField(upload_to='imagen_categoria')
+    imagen = models.ImageField(upload_to='imagen_categoria_comida')
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
@@ -51,12 +62,12 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
     
-class Alimento(models.Model):
+class Comida(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.0)])
     descripcion = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to='imagen_comida')
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    categoriaComida = models.ForeignKey(CategoriaComida, on_delete=models.CASCADE)
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)

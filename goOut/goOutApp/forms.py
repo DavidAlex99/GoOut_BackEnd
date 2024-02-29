@@ -1,5 +1,5 @@
 from django import forms
-from .models import Evento, Alimento, Categoria, Contacto, Ubicacion, SobreNos, Emprendedor
+from .models import Evento, Comida, CategoriaComida, Contacto, Ubicacion, SobreNos, Emprendedor
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -49,8 +49,8 @@ class EventoForm(forms.ModelForm):
 
 class ComidaForm(forms.ModelForm):
     class Meta:
-        model = Alimento
-        fields = ['nombre', 'precio', 'descripcion', 'categoria', 'imagen']
+        model = Comida
+        fields = ['nombre', 'precio', 'descripcion', 'categoriaComida', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -64,11 +64,11 @@ class ComidaForm(forms.ModelForm):
         emprendedor = kwargs.pop('emprendedor', None)
         super(ComidaForm, self).__init__(*args, **kwargs)
         if emprendedor:
-            self.fields['categoria'].queryset = Categoria.objects.filter(emprendedor=emprendedor)
+            self.fields['categoriaComida'].queryset = CategoriaComida.objects.filter(emprendedor=emprendedor)
 
-class CategoriaForm(forms.ModelForm):
+class CategoriaComidaForm(forms.ModelForm):
     class Meta:
-        model = Categoria
+        model = CategoriaComida
         fields = ['nombre', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),

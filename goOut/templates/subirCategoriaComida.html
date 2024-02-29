@@ -32,7 +32,7 @@
         {% endif %}      
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{miFormularioCategoria|crispy}}
+            {{miFormularioCategoriaComida|crispy}}
             <input type="submit" style="width: 150px;" value="Enviar">
         </form>       
     </div>
