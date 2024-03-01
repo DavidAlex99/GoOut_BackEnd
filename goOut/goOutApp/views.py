@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
+from .forms import EventoForm, CategoriaEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, Comida, CategoriaComida, Emprendedor
+from .models import Evento, CategoriaEvento, Comida, CategoriaComida, Emprendedor
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -84,89 +84,6 @@ def subirComida(request, username):
         formulario_servicio = ComidaForm(emprendedor=emprendedor)
     return render(request, "subirComida.html", {'miFormularioComida': formulario_servicio})
 
-def acerca(request, username):
-# Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = SobreNosForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            formulario_servicio.save()  
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = SobreNosForm()
-    return render(request, "acerca.html", {'miFormularioSobreNos': formulario_servicio})
-
-#vista para el contacto
-def contacto(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = ContactoForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            formulario_servicio.save()  
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = ContactoForm()
-    return render(request, "contacto.html", {'miFormularioContacto': formulario_servicio})
-
-
-#vista para la ubicacion
-def ubicacion(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = UbicacionForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            formulario_servicio.save()  
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = UbicacionForm()
-    return render(request, "ubicacion.html", {'miFormularioUbicacion': formulario_servicio})
-
-# vista para la galeria
-def galeria(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-    # aqui se renderizaran los eventos de la base de datos de acuerdoal emprendedor
-    emprendedor = request.user.emprendedor
-    eventos = Evento.objects.filter(emprendedor=emprendedor)
-    return render(request, "galeria.html", {"eventos": eventos})
-
-# para los formularios para subir imagen 
-def subirEvento(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = EventoForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            evento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
-            evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
-            return redirect('Evento', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = EventoForm()
-    return render(request, "subirEvento.html", {'miFormularioImagen': formulario_servicio})
-
-
-
-
 def subirCategoriaComida(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
@@ -228,3 +145,153 @@ def eliminarComida(request, username, comida_id):
     else:
         messages.error(request, "No se puede eliminar la comida.")
         return redirect('Menu', username=username)
+
+def acerca(request, username):
+# Asegúrate de que el usuario logueado es el mismo que el del URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    if request.method == "POST":
+        formulario_servicio = SobreNosForm(request.POST, request.FILES) 
+        if formulario_servicio.is_valid():
+            formulario_servicio.save()  
+            return redirect('Menu', username=username) 
+        else:
+            print(formulario_servicio.errors)
+    else:
+        formulario_servicio = SobreNosForm()
+    return render(request, "acerca.html", {'miFormularioSobreNos': formulario_servicio})
+
+#vista para el contacto
+def contacto(request, username):
+    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    if request.method == "POST":
+        formulario_servicio = ContactoForm(request.POST, request.FILES) 
+        if formulario_servicio.is_valid():
+            formulario_servicio.save()  
+            return redirect('Menu', username=username) 
+        else:
+            print(formulario_servicio.errors)
+    else:
+        formulario_servicio = ContactoForm()
+    return render(request, "contacto.html", {'miFormularioContacto': formulario_servicio})
+
+
+#vista para la ubicacion
+def ubicacion(request, username):
+    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    if request.method == "POST":
+        formulario_servicio = UbicacionForm(request.POST, request.FILES) 
+        if formulario_servicio.is_valid():
+            formulario_servicio.save()  
+            return redirect('Menu', username=username) 
+        else:
+            print(formulario_servicio.errors)
+    else:
+        formulario_servicio = UbicacionForm()
+    return render(request, "ubicacion.html", {'miFormularioUbicacion': formulario_servicio})
+
+# vista para la galeria
+def galeria(request, username):
+    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+    # aqui se renderizaran los eventos de la base de datos de acuerdoal emprendedor
+    emprendedor = request.user.emprendedor
+    categoriasEvento = CategoriaEvento.objects.filter(emprendedor=emprendedor)
+    eventos = Evento.objects.filter(emprendedor=emprendedor)
+    context = {
+        # los elementos de la bbdd que se van a renderizar
+        "categoriasEvento": categoriasEvento,
+        "eventos": eventos,
+        "username": username,
+    }
+    return render(request, "galeria.html", context)
+
+# para los formularios para subir imagen 
+def subirEvento(request, username):
+    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    if request.method == "POST":
+        formulario_servicio = EventoForm(request.POST, request.FILES) 
+        if formulario_servicio.is_valid():
+            evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
+            evento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
+            return redirect('Galeria', username=username) 
+        else:
+            print(formulario_servicio.errors)
+    else:
+        formulario_servicio = EventoForm()
+    return render(request, "subirEvento.html", {'miFormularioEvento': formulario_servicio})
+
+def subirCategoriaEvento(request, username):
+    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    if request.method == "POST":
+        formulario_servicio = CategoriaEventoForm(request.POST, request.FILES) 
+        if formulario_servicio.is_valid():
+            categoriaEvento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
+            categoriaEvento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            categoriaEvento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
+            return redirect('Menu', username=username) 
+        else:
+            print(formulario_servicio.errors)
+    else:
+        formulario_servicio = CategoriaComidaForm()
+    return render(request, "subirCategoriaEvento.html", {'miFormularioCategoriaEvento': formulario_servicio})
+
+@login_required
+def eliminarCategoriaEvento(request, username, categoriaEvento_id):
+    # Solo permitir esta acción si el método es POST y el usuario está autenticado
+    if request.method == "POST" and request.user.username == username:
+        categoria = get_object_or_404(CategoriaEvento, id=categoriaEvento_id, emprendedor=request.user.emprendedor)
+        
+         # Eliminar las imágenes de los alimentos asociados a la categoría
+        eventos = Evento.objects.filter(categoriaEvento=categoria)
+        for evento in eventos:
+            if evento.imagen and os.path.isfile(evento.imagen.path):
+                os.remove(evento.imagen.path)
+            evento.delete()  # Eliminar la instancia de Comida
+
+        # Eliminar la imagen de la categoría
+        if categoria.imagen and os.path.isfile(categoria.imagen.path):
+            os.remove(categoria.imagen.path)
+        
+        categoria.delete()  # Eliminar la instancia de CategoriaComida
+        messages.success(request, "Categoría y eventos asociados eliminados correctamente.")
+        return redirect('Galeria', username=username)
+
+    else:
+        messages.error(request, "No se puede eliminar la categoría.")
+        return redirect('Galeria', username=username)
+
+@login_required
+def eliminarEvento(request, username, evento_id):
+
+    # Asegúrate de que el método es POST y que el usuario está autenticado
+    if request.method == "POST" and request.user.username == username:
+        evento = get_object_or_404(Evento, id=evento_id, emprendedor=request.user.emprendedor)
+        
+        # Eliminar la imagen asociada con la comida, si existe
+        if evento.imagen and os.path.isfile(evento.imagen.path):
+            os.remove(evento.imagen.path)
+        
+        evento.delete()  # Elimina la instancia de Comida
+        
+        messages.success(request, "Evento eliminada correctamente.")
+        return redirect('Galeria', username=username)
+    else:
+        messages.error(request, "No se puede eliminar el evento.")
+        return redirect('Galeria', username=username)
+

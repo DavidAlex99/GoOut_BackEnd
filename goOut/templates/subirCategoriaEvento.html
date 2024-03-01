@@ -14,10 +14,11 @@
       <button id="btnGroupDrop4" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
       <div class="dropdown-menu" aria-labelledby="btnGroupDrop4">
         <a class="dropdown-item" href="#">Dropdown link</a>
-        <a class="dropdown-item" href="#">hola link</a>
+        <a class="dropdown-item" href="#">Dropdown link</a>
       </div>
     </div>
 </div>
+
 
 <div class="upload-field">
 
@@ -27,15 +28,15 @@
 
     <div class="text-field">
         {% if "valid" in request.GET %}
-            <p>subida correcta de la imagen</p>
+            <p>subida correcta de la categoria</p>
         {% endif %}      
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{miFormularioEvento|crispy}}
+            {{miFormularioCategoriaEvento|crispy}}
             <input type="submit" style="width: 150px;" value="Enviar">
         </form>       
     </div>
 </div>
 {{request.POST}}
 
-{% endblock %}  
+{% endblock %}

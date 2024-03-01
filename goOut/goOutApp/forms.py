@@ -40,12 +40,21 @@ class EmprendedorRegisterForm(UserCreationForm):
 class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento
-        fields = ['titulo', 'descripcion', 'imagen']
+        fields = ['titulo', 'descripcion', 'imagen', 'categoriaEvento']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
             'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'categoriaEvento': forms.Select(attrs={'class': 'form-control'})
         }
+
+# constructor que hace que se pase como argumento adicional un emprendedor el cual se usara para filtrara
+# por las categorias que son propias del emprendedor
+    def __init__(self, *args, **kwargs):
+        emprendedor = kwargs.pop('emprendedor', None)
+        super(EventoForm, self).__init__(*args, **kwargs)
+        if emprendedor:
+            self.fields['categoriaEvento'].queryset = CategoriaComida.objects.filter(emprendedor=emprendedor)
 
 class CategoriaEventoForm(forms.ModelForm):
     class Meta:
@@ -64,7 +73,7 @@ class ComidaForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
-            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'categoriaComida': forms.Select(attrs={'class': 'form-control'}),
             'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
 # constructor que hace que se pase como argumento adicional un emprendedor el cual se usara para filtrara

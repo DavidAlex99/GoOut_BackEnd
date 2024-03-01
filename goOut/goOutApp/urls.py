@@ -35,9 +35,12 @@ urlpatterns = [
     path('<str:username>/menu/eliminarComida/<int:comida_id>/', views.eliminarComida, name='eliminarComida'),
 
     path('<str:username>/acerca/', views.acerca, name="Acerca"),
-    path('<str:username>/galeria/', views.galeria, name="Evento"),
+    path('<str:username>/galeria/', views.galeria, name="Galeria"),
     # urls para eventos
     path('<str:username>/subirEvento/', views.subirEvento, name="SubirEvento"),
+    path('<str:username>/subirCategoriaEvento/', views.subirCategoriaEvento, name="SubirCategoriaEvento"),
+    path('<str:username>/galeria/eliminarCategoriaEvento/<int:categoriaEvento_id>/', views.eliminarCategoriaEvento, name='eliminarCategoriaEvento'),
+    path('<str:username>/galeria/eliminarEvento/<int:evento_id>/', views.eliminarEvento, name='eliminarEvento'),
     
     path('<str:username>/ubicacion/', views.ubicacion, name="Ubicacion"),
     path('<str:username>/contacto/', views.contacto, name="Contacto"),
