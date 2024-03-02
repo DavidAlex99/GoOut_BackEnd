@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseNotAllowed
 import os
+from django.contrib.auth.models import User
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
@@ -72,6 +73,33 @@ def crearEmprendimiento(request, username):
         formulario_servicio = EmprendimientoForm()
 
     return render(request, 'crearEmprendimiento.html', {'miFormularioCrearEmprendimiento': formulario_servicio})
+
+@login_required
+def actualizarEmprendimiento(request, username):
+    # Asegúrate de que el usuario que hace la solicitud es el mismo que el del username en la URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    # Obtiene el perfil de emprendedor basado en el usuario que ha iniciado sesión.
+    user = get_object_or_404(User, username=username)
+    emprendedor = get_object_or_404(Emprendedor, user=user)
+
+    # Intenta obtener el emprendimiento asociado con el emprendedor. Si no existe, crea uno nuevo.
+    emprendimiento, created = Emprendimiento.objects.get_or_create(emprendedor=emprendedor)
+
+    if request.method == 'POST':
+        form = EmprendimientoForm(request.POST, request.FILES, instance=emprendimiento)
+        if form.is_valid():
+            form.save()
+            return redirect('Home')
+    else:
+        form = EmprendimientoForm(instance=emprendimiento)
+
+    context = {
+        'form': form,
+        'emprendimiento': emprendimiento,
+    }
+    return render(request, 'actualizarEmprendimiento.html', context)
 
 def home(request):
     return render(request, "home.html")

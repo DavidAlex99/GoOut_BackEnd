@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Actualizar Emprendimiento</h2>
+    
+    <!-- Muestra la previsualización de los datos actuales -->
+    <div>
+        <h3>Previsualización:</h3>
+        <p><strong>Nombre:</strong> {{ emprendimiento.nombre }}</p>
+        <p><strong>Descripción:</strong> {{ emprendimiento.descripcion }}</p>
+    </div>
+    
+    <!-- Muestra el formulario para actualizar -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Actualizar Emprendimiento</button>
+    </form>
+</div>
+{% endblock %}

@@ -34,7 +34,8 @@ router.register(r'emprendedores', EmprendedorViewSet)
 urlpatterns = [
     path('', views.home, name="Home"),
 
-     path('<str:username>/crearEmprendimiento/', views.crearEmprendimiento, name='crearEmprendimiento'),
+    path('<str:username>/crearEmprendimiento/', views.crearEmprendimiento, name='crearEmprendimiento'),
+    path('<str:username>/actualizarEmprendimiento/', views.actualizarEmprendimiento, name='actualizarEmprendimiento'),
     
     path('<str:username>/menu/', views.menu, name="Menu"),
     # urls para comidas
