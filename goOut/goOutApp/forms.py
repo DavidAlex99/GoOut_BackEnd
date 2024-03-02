@@ -1,5 +1,5 @@
 from django import forms
-from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, Ubicacion, SobreNos, Emprendedor
+from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, Ubicacion, SobreNos, Emprendedor, Emprendimiento
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -36,6 +36,13 @@ class EmprendedorRegisterForm(UserCreationForm):
             user.save()
             Emprendedor.objects.create(user=user, edad=self.cleaned_data['edad'], nombre=self.cleaned_data['nombre'])
         return user
+
+# registro de emprendimiento
+class EmprendimientoForm(forms.ModelForm):
+    class Meta:
+        model = Emprendimiento
+        fields = ['nombre', 'descripcion']
+        # Agrega aquí cualquier widget o configuración adicional
 
 class EventoForm(forms.ModelForm):
     class Meta:

@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
+from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento
+from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -17,7 +17,7 @@ import os
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
-from .serializers import EmprendimientoSerializer
+from .serializers import EmprendimientoSerializer, EmprendedorSerializer
 # fin para serialiara  traves de la API
 
 from django.forms import inlineformset_factory
@@ -43,14 +43,35 @@ def user_profile(request, username):
 # La vista para el registro de usuarios
 def register(request):
     if request.method == 'POST':
-        form = EmprendedorRegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
+        formulario_servicio = EmprendedorRegisterForm(request.POST)
+        if formulario_servicio.is_valid():
+            user = formulario_servicio.save()
             login(request, user)
-            return redirect('user_profile', username=user.username)
+            return redirect('crearEmprendimiento', username=user.username)
     else:
-        form = EmprendedorRegisterForm()
-    return render(request, 'register.html', {'form': form})
+        formulario_servicio = EmprendedorRegisterForm()
+    return render(request, 'register.html', {'miFormularioRegistroUsuario': formulario_servicio})
+
+# registro del nuevo emprendimiento@login_required
+def crearEmprendimiento(request, username):
+    # Asegúrate de que el nombre de usuario coincida con el usuario que ha iniciado sesión
+    if request.user.username != username:
+        return redirect('Home')
+    
+    # Obtiene o crea el perfil de emprendedor
+    emprendedor, created = Emprendedor.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        formulario_servicio = EmprendimientoForm(request.POST)
+        if formulario_servicio.is_valid():
+            emprendimiento = formulario_servicio.save(commit=False)
+            emprendimiento.emprendedor = emprendedor
+            emprendimiento.save()
+            return redirect('user_profile', username=username)
+    else:
+        formulario_servicio = EmprendimientoForm()
+
+    return render(request, 'crearEmprendimiento.html', {'miFormularioCrearEmprendimiento': formulario_servicio})
 
 def home(request):
     return render(request, "home.html")
@@ -341,3 +362,7 @@ def eliminarEvento(request, username, evento_id):
 class EmprendimientoViewSet(viewsets.ModelViewSet):
     queryset = Emprendimiento.objects.all()
     serializer_class = EmprendimientoSerializer
+
+class EmprendedorViewSet(viewsets.ModelViewSet):
+    queryset = Emprendedor.objects.all()
+    serializer_class = EmprendedorSerializer

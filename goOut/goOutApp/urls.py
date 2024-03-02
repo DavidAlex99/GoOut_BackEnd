@@ -26,12 +26,16 @@ from .views import user_profile, CustomLoginView, register
 from django.contrib.auth.views import LoginView, LogoutView
 # Imports para poder consumir las APIS
 from rest_framework.routers import DefaultRouter
-from .views import EmprendimientoViewSet
+from .views import EmprendimientoViewSet, EmprendedorViewSet
 router = DefaultRouter()
 router.register(r'emprendimientos', EmprendimientoViewSet)
+router.register(r'emprendedores', EmprendedorViewSet)
 
 urlpatterns = [
     path('', views.home, name="Home"),
+
+     path('<str:username>/crearEmprendimiento/', views.crearEmprendimiento, name='crearEmprendimiento'),
+    
     path('<str:username>/menu/', views.menu, name="Menu"),
     # urls para comidas
     path('<str:username>/subirComida/', views.subirComida, name="SubirComida"),
