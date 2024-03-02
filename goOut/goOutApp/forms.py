@@ -60,7 +60,7 @@ class EventoForm(forms.ModelForm):
         emprendedor = kwargs.pop('emprendedor', None)
         super(EventoForm, self).__init__(*args, **kwargs)
         if emprendedor:
-            self.fields['categoriaEvento'].queryset = CategoriaComida.objects.filter(emprendedor=emprendedor)
+            self.fields['categoriaEvento'].queryset = CategoriaEvento.objects.filter(emprendedor=emprendedor)
 
 class CategoriaEventoForm(forms.ModelForm):
     class Meta:

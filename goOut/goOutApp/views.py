@@ -214,11 +214,15 @@ def ubicacion(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
+    
+    emprendedor = request.user.emprendedor
 
     if request.method == "POST":
         formulario_servicio = UbicacionForm(request.POST, request.FILES) 
         if formulario_servicio.is_valid():
-            formulario_servicio.save()  
+            ubicacion = formulario_servicio.save(commit=False)
+            ubicacion.emprendedor = emprendedor
+            ubicacion.save()  
             return redirect('Menu', username=username) 
         else:
             print(formulario_servicio.errors)
@@ -266,12 +270,15 @@ def subirEvento(request, username):
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
 
+    emprendedor = request.user.emprendedor
+
     if request.method == "POST":
-        formulario_servicio = EventoForm(request.POST, request.FILES) 
+        formulario_servicio = EventoForm(request.POST, request.FILES, emprendedor=emprendedor) 
         formset = ImagenEventoFormSet(request.POST, request.FILES)
+
         if formulario_servicio.is_valid() and formset.is_valid():
             evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            evento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
+            evento.emprendedor = emprendedor  # Asigna el usuario logueado al objeto comida
             evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
             
             # Guarda cada una de las imágenes asociadas con el evento
@@ -285,7 +292,7 @@ def subirEvento(request, username):
         else:
             print(formulario_servicio.errors, formset.errors)
     else:
-        formulario_servicio = EventoForm()
+        formulario_servicio = EventoForm(emprendedor=emprendedor)
         formset = ImagenEventoFormSet()
 
     return render(request, "subirEvento.html", {'miFormularioEvento': formulario_servicio, 'miFormularioImagenesEvento': formset})
