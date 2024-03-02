@@ -7,6 +7,14 @@
 <!-- aqui va el contenido cambiante -->
 {% block content %}
 
+<div>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirEvento' username=user.username %}" style="color: white;">Agregar evento</a></button>
+</div>
+
+<div>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaEvento' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
+</div>
+
 <div class="row">
     {% for categoriaEvento in categoriasEvento %}
     <div class="col-md-4">
@@ -31,13 +39,7 @@
 </div>
 
 <div></div>
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirEvento' username=user.username %}" style="color: white;">Agregar evento</a></button>
-</div>
 
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaEvento' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
-</div>
 
 <div class="row">
     <!-- aqui se hace un for para cada servicio -->
@@ -45,7 +47,9 @@
 
     <div class="col-md-4">
         <div class="card border-primary mb-3" style="max-width: 20rem;">
-            <div class="card-header">{{evento.titulo}}</div>
+            <a href="{% url 'detalleEvento' username=user.username evento_id=evento.id %}">
+                {{ evento.titulo }}
+            </a>
             <div class="card-body">
                 <img src="{{evento.imagen.url}}" class="card-img-top">
             

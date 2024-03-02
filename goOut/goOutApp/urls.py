@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 # imortacion de las vistas
 from goOutApp import views
 
@@ -24,13 +24,18 @@ from django.conf.urls.static import static
 # para el inicio de sesion
 from .views import user_profile, CustomLoginView, register
 from django.contrib.auth.views import LoginView, LogoutView
+# Imports para poder consumir las APIS
+from rest_framework.routers import DefaultRouter
+from .views import EmprendimientoViewSet
+router = DefaultRouter()
+router.register(r'emprendimientos', EmprendimientoViewSet)
 
 urlpatterns = [
     path('', views.home, name="Home"),
     path('<str:username>/menu/', views.menu, name="Menu"),
     # urls para comidas
     path('<str:username>/subirComida/', views.subirComida, name="SubirComida"),
-    path('<str:username>/subirCategoriaComida/', views.subirComida, name="SubirCategoriaComida"),
+    path('<str:username>/subirCategoriaComida/', views.subirCategoriaComida, name="SubirCategoriaComida"),
     path('<str:username>/menu/eliminarCategoriaComida/<int:categoriaComida_id>/', views.eliminarCategoriaComida, name='eliminarCategoriaComida'),
     path('<str:username>/menu/eliminarComida/<int:comida_id>/', views.eliminarComida, name='eliminarComida'),
 
@@ -41,6 +46,8 @@ urlpatterns = [
     path('<str:username>/subirCategoriaEvento/', views.subirCategoriaEvento, name="SubirCategoriaEvento"),
     path('<str:username>/galeria/eliminarCategoriaEvento/<int:categoriaEvento_id>/', views.eliminarCategoriaEvento, name='eliminarCategoriaEvento'),
     path('<str:username>/galeria/eliminarEvento/<int:evento_id>/', views.eliminarEvento, name='eliminarEvento'),
+    # para ver los detalles internos del evento que se ha seleccionado
+    path('<str:username>/evento/<int:evento_id>/', views.detalleEvento, name='detalleEvento'),
     
     path('<str:username>/ubicacion/', views.ubicacion, name="Ubicacion"),
     path('<str:username>/contacto/', views.contacto, name="Contacto"),
@@ -52,9 +59,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     # para eliminar comida y categorias
     
-    
-
-    
+    # urls para poder consumir la API
+    path('api/', include(router.urls)),
 ]
 
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

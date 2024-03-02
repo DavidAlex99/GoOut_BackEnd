@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
+from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, CategoriaEvento, Comida, CategoriaComida, Emprendedor
+from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -14,6 +14,14 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseNotAllowed
 import os
+
+# para serialiara  traves de la API
+from rest_framework import viewsets
+from .serializers import EmprendimientoSerializer
+# fin para serialiara  traves de la API
+
+from django.forms import inlineformset_factory
+ImagenEventoFormSet = inlineformset_factory(Evento, ImagenEvento, form=ImagenEventoForm, extra=3)
 
 # La vista personalizada para el inicio de sesión
 class CustomLoginView(LoginView):
@@ -214,24 +222,52 @@ def galeria(request, username):
     }
     return render(request, "galeria.html", context)
 
+# para visualizar mas detalles del evento que se ha elegido
+@login_required
+def detalleEvento(request, username, evento_id):
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+    
+    evento = get_object_or_404(Evento, id=evento_id, emprendedor=request.user.emprendedor)
+    imagenes = evento.imagenesEvento.all()  # Asumiendo que tienes un related_name='imagenes' en tu modelo ImagenEvento
+
+    context = {
+        'evento': evento,
+        'imagenes': imagenes,
+        'username': username,
+    }
+    return render(request, 'detalle_evento.html', context)
+
 # para los formularios para subir imagen 
 def subirEvento(request, username):
+
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
 
     if request.method == "POST":
         formulario_servicio = EventoForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
+        formset = ImagenEventoFormSet(request.POST, request.FILES)
+        if formulario_servicio.is_valid() and formset.is_valid():
             evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
             evento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
             evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
+            
+            # Guarda cada una de las imágenes asociadas con el evento
+            # Ahora guardamos el formset
+            imagenes = formset.save(commit=False)
+            for imagen in imagenes:
+                imagen.evento = evento
+                imagen.save()
+            
             return redirect('Galeria', username=username) 
         else:
-            print(formulario_servicio.errors)
+            print(formulario_servicio.errors, formset.errors)
     else:
         formulario_servicio = EventoForm()
-    return render(request, "subirEvento.html", {'miFormularioEvento': formulario_servicio})
+        formset = ImagenEventoFormSet()
+
+    return render(request, "subirEvento.html", {'miFormularioEvento': formulario_servicio, 'miFormularioImagenesEvento': formset})
 
 def subirCategoriaEvento(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
@@ -244,7 +280,7 @@ def subirCategoriaEvento(request, username):
             categoriaEvento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
             categoriaEvento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
             categoriaEvento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
-            return redirect('Menu', username=username) 
+            return redirect('Galeria', username=username) 
         else:
             print(formulario_servicio.errors)
     else:
@@ -283,15 +319,25 @@ def eliminarEvento(request, username, evento_id):
     if request.method == "POST" and request.user.username == username:
         evento = get_object_or_404(Evento, id=evento_id, emprendedor=request.user.emprendedor)
         
-        # Eliminar la imagen asociada con la comida, si existe
-        if evento.imagen and os.path.isfile(evento.imagen.path):
-            os.remove(evento.imagen.path)
+        # Obtener todas las imágenes asociadas con el evento
+        imagenes_evento = ImagenEvento.objects.filter(evento=evento)
+        for imagen in imagenes_evento:
+            # Eliminar la imagen del sistema de archivos
+            if imagen.imagen and os.path.isfile(imagen.imagen.path):
+                os.remove(imagen.imagen.path)
+            # Eliminar la instancia de imagen de la base de datos
+            imagen.delete()
         
         evento.delete()  # Elimina la instancia de Comida
         
-        messages.success(request, "Evento eliminada correctamente.")
+        messages.success(request, "Evento y sus imágenes asociadas han sido eliminados.")
         return redirect('Galeria', username=username)
     else:
         messages.error(request, "No se puede eliminar el evento.")
         return redirect('Galeria', username=username)
 
+
+# vistas para serializaraa traves y consumo de la API
+class EmprendimientoViewSet(viewsets.ModelViewSet):
+    queryset = Emprendimiento.objects.all()
+    serializer_class = EmprendimientoSerializer

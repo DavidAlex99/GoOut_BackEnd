@@ -7,6 +7,14 @@
 <!-- aqui va el contenido cambiante -->
 {% block content %}
 
+<div>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirComida' username=user.username %}" style="color: white;">Agregar alimento</a></button>
+</div>
+
+<div>
+    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaComida' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
+</div>
+
 <div class="row">
     {% for categoriaComida in categoriasComida %}
     <div class="col-md-4">
@@ -31,13 +39,7 @@
 </div>
 
 <div></div>
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirComida' username=user.username %}" style="color: white;">Agregar alimento</a></button>
-</div>
 
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaComida' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
-</div>
 
 <!-- categorias disponibles -->
 
