@@ -32,7 +32,7 @@ router.register(r'emprendimientos', EmprendimientoViewSet)
 router.register(r'emprendedores', EmprendedorViewSet)
 
 urlpatterns = [
-    path('', views.home, name="Home"),
+    path('', views.home, name='Home'),
 
     path('<str:username>/crearEmprendimiento/', views.crearEmprendimiento, name='crearEmprendimiento'),
     path('<str:username>/actualizarEmprendimiento/', views.actualizarEmprendimiento, name='actualizarEmprendimiento'),
@@ -44,7 +44,10 @@ urlpatterns = [
     path('<str:username>/menu/eliminarCategoriaComida/<int:categoriaComida_id>/', views.eliminarCategoriaComida, name='eliminarCategoriaComida'),
     path('<str:username>/menu/eliminarComida/<int:comida_id>/', views.eliminarComida, name='eliminarComida'),
 
-    path('<str:username>/subirAcerca/', views.subirSobreNos, name="subirSobreNos"),
+    path('<str:username>/detalleSobreNos/', views.detalleSobreNos, name="detalleSobreNos"),
+    path('<str:username>/subirSobreNos/', views.subirSobreNos, name="subirSobreNos"),
+    path('<str:username>/actualizarSobreNos/', views.actualizarSobreNos, name='actualizarSobreNos'),
+    
     path('<str:username>/galeria/', views.galeria, name="Galeria"),
     # urls para eventos
     path('<str:username>/subirEvento/', views.subirEvento, name="SubirEvento"),

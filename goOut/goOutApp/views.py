@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto
+from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto, SobreNos
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -208,7 +208,7 @@ def eliminarComida(request, username, comida_id):
         messages.error(request, "No se puede eliminar la comida.")
         return redirect('Menu', username=username)
 
-def acerca(request, username):
+def detalleSobreNos(request, username):
 # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
@@ -222,32 +222,79 @@ def acerca(request, username):
             print(formulario_servicio.errors)
     else:
         formulario_servicio = SobreNosForm()
-    return render(request, "acerca.html", {'miFormularioSobreNos': formulario_servicio})
+    return render(request, "detalleSobreNos.html", {'miFormularioSobreNos': formulario_servicio})
+
+@login_required
+def detalleSobreNos(request, username):
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+    
+    emprendedor = get_object_or_404(Emprendedor, user=request.user)
+    sobreNos = get_object_or_404(SobreNos, emprendedor=emprendedor)
+
+    context = {
+        'sobreNos': sobreNos,
+        'username': username,
+    }
+    return render(request, 'detalleSobreNos.html', context)
 
 @login_required
 def subirSobreNos(request, username):
     emprendedor = get_object_or_404(Emprendedor, user=request.user)
 
-    if request.method == 'POST':
-        form = SobreNosForm(request.POST)
-        formset = ImagenSobreNosFormSet(request.POST, request.FILES)
-
-        if form.is_valid() and formset.is_valid():
-            sobreNos = form.save(commit=False)
-            sobreNos.emprendedor = emprendedor
-            sobreNos.save()
-
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.sobreNos = sobreNos
-                instance.save()
-
-            return redirect('Menu', username=username)  
-    else:
-        form = SobreNosForm()
-        formset = ImagenSobreNosFormSet()
+    # Verifica si ya existe información sobre nosotros para este emprendedor
+    try:
+        sobreNos = SobreNos.objects.get(emprendedor=emprendedor)
+        # Si existe, redirige al usuario a la vista de detalles de Sobre Nosotros
+        return redirect('detalleSobreNos', username=username)
+    except SobreNos.DoesNotExist:
+        # Si no existe, permite al usuario crearla
+        if request.method == 'POST':
+            form = SobreNosForm(request.POST)
+            formset = ImagenSobreNosFormSet(request.POST, request.FILES)
+            if form.is_valid() and formset.is_valid():
+                sobreNos = form.save(commit=False)
+                sobreNos.emprendedor = emprendedor
+                sobreNos.save()
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.sobreNos = sobreNos
+                    instance.save()
+                return redirect('detalleSobreNos', username=username)  # Redirige a los detalles después de crear
+        else:
+            form = SobreNosForm()
+            formset = ImagenSobreNosFormSet()
 
     return render(request, 'subirSobreNos.html', {'miFormularioSobreNos': form, 'miFormularioImagenesSobreNos': formset})
+
+
+@login_required
+def actualizarSobreNos(request, username):
+    # Asegúrate de que el usuario que hace la solicitud es el mismo que el del username en la URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+
+    emprendedor = get_object_or_404(Emprendedor, user=request.user)
+    sobreNos, created = SobreNos.objects.get_or_create(emprendedor=emprendedor)
+
+    if request.method == 'POST':
+        form = SobreNosForm(request.POST, instance=sobreNos)
+        formset = ImagenSobreNosFormSet(request.POST, request.FILES, instance=sobreNos)
+
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+            return redirect('detalle_sobre_nos', username=username)  # Asume que tienes una vista para ver los detalles de SobreNos
+    else:
+        form = SobreNosForm(instance=sobreNos)
+        formset = ImagenSobreNosFormSet(instance=sobreNos)
+
+    context = {
+        'miFormularioSobreNos': form,
+        'miFormularioImagenesSobreNos': formset,
+        'sobreNos': sobreNos,
+    }
+    return render(request, 'actualizarSobreNos.html', context)
 
 #vista para el contacto
 def contacto(request, username):
@@ -268,24 +315,28 @@ def contacto(request, username):
 
 @login_required
 def subirContacto(request, username):
-    # Se asegura que el usuario logueado es el mismo que el username en la URL
+    # Se asegura que el usuario logueado es el mismo que el username en la URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
     
     emprendedor = request.user.emprendedor
-    if request.method == 'POST':
-        formulario_servicio = ContactoForm(request.POST, request.FILES)
-        if formulario_servicio.is_valid():
-            contacto = formulario_servicio.save(commit=False)
-            contacto.emprendedor = emprendedor
-            contacto.save()
-            # Aquí podrías redirigir al usuario a la vista del perfil del emprendimiento
-            # o a cualquier otra parte que consideres adecuada
-            return redirect('detalle_contacto', username=username)
+    try:
+        contacto = Contacto.objects.get(emprendedor=emprendedor)
+        # Si el contacto ya existe, redirige a la vista de actualizarContacto.
+        return redirect('actualizarContacto', username=username)
+    except Contacto.DoesNotExist:
+        # Si no existe un objeto Contacto, se procede a crear uno nuevo.
+        if request.method == 'POST':
+            formulario_servicio = ContactoForm(request.POST, request.FILES)
+            if formulario_servicio.is_valid():
+                contacto = formulario_servicio.save(commit=False)
+                contacto.emprendedor = emprendedor
+                contacto.save()
+                return redirect('detalle_contacto', username=username)  # Asume una vista de detalle para Contacto.
+            else:
+                print(formulario_servicio.errors)
         else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = ContactoForm()
+            formulario_servicio = ContactoForm()
 
     return render(request, "subirContacto.html", {'miFormularioContacto': formulario_servicio})
 
