@@ -1,5 +1,5 @@
 from django import forms
-from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, SobreNos, ImagenSobreNos , Emprendedor, Emprendimiento
+from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, ImagenContacto, SobreNos, ImagenSobreNos , Emprendedor, Emprendimiento
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -127,6 +127,21 @@ class SobreNosForm(forms.ModelForm):
         widgets = {
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class ImagenContactoForm(forms.ModelForm):
+    class Meta:
+        model = ImagenContacto
+        fields = ['imagen']
+        widgets = {
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+
+ImagenContactoFormSet = inlineformset_factory(
+    Contacto, ImagenContacto, 
+    form=ImagenContactoForm, 
+    extra=4,  # Puedes ajustar el número de formularios extra que quieres mostrar.
+    can_delete=True,  # Permite marcar imágenes para eliminar.
+)
 
 class ImagenSobreNosForm(forms.ModelForm):
     class Meta:

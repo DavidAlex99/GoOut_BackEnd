@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
+from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
 from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto, SobreNos
 from django.contrib.auth.forms import UserCreationForm
@@ -284,7 +284,7 @@ def actualizarSobreNos(request, username):
         if form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
-            return redirect('detalle_sobre_nos', username=username)  # Asume que tienes una vista para ver los detalles de SobreNos
+            return redirect('detalleSobreNos', username=username)  # Asume que tienes una vista para ver los detalles de SobreNos
     else:
         form = SobreNosForm(instance=sobreNos)
         formset = ImagenSobreNosFormSet(instance=sobreNos)
@@ -296,73 +296,71 @@ def actualizarSobreNos(request, username):
     }
     return render(request, 'actualizarSobreNos.html', context)
 
-#vista para el contacto
-def contacto(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+@login_required
+def detalleContacto(request, username):
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
 
-    if request.method == "POST":
-        formulario_servicio = ContactoForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            formulario_servicio.save()  
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = ContactoForm()
-    return render(request, "contacto.html", {'miFormularioContacto': formulario_servicio})
+    emprendedor = get_object_or_404(Emprendedor, user=request.user)
+    contacto = get_object_or_404(Contacto, emprendedor=emprendedor)
 
-@login_required
+    context = {
+        'contacto': contacto,
+        'username': username,
+    }
+
+    return render(request, 'detalleContacto.html', context)
+
 def subirContacto(request, username):
-    # Se asegura que el usuario logueado es el mismo que el username en la URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
     
     emprendedor = request.user.emprendedor
     try:
         contacto = Contacto.objects.get(emprendedor=emprendedor)
-        # Si el contacto ya existe, redirige a la vista de actualizarContacto.
-        return redirect('actualizarContacto', username=username)
+        # Redirige a la vista de detalles de Contacto.
+        return redirect('detalleContacto', username=username)
     except Contacto.DoesNotExist:
-        # Si no existe un objeto Contacto, se procede a crear uno nuevo.
         if request.method == 'POST':
             formulario_servicio = ContactoForm(request.POST, request.FILES)
-            if formulario_servicio.is_valid():
+            formset = ImagenContactoFormSet(request.POST, request.FILES)
+            if formulario_servicio.is_valid() and formset.is_valid():
                 contacto = formulario_servicio.save(commit=False)
                 contacto.emprendedor = emprendedor
                 contacto.save()
-                return redirect('detalle_contacto', username=username)  # Asume una vista de detalle para Contacto.
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.contacto = contacto
+                    instance.save()
+                return redirect('detalleContacto', username=username)
             else:
                 print(formulario_servicio.errors)
         else:
             formulario_servicio = ContactoForm()
+            formset = ImagenContactoFormSet()
 
-    return render(request, "subirContacto.html", {'miFormularioContacto': formulario_servicio})
+    return render(request, "subirContacto.html", {'form': formulario_servicio, 'formset': formset})
 
 @login_required
 def actualizarContacto(request, username):
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
 
-    # Asume que cada emprendedor tiene un único objeto de contacto asociado.
     emprendedor = get_object_or_404(Emprendedor, user=request.user)
     contacto, created = Contacto.objects.get_or_create(emprendedor=emprendedor)
 
     if request.method == 'POST':
         form = ContactoForm(request.POST, request.FILES, instance=contacto)
-        if form.is_valid():
+        formset = ImagenContactoFormSet(request.POST, request.FILES, instance=contacto)
+        if form.is_valid() and formset.is_valid():
             form.save()
-            return redirect('detalle_contacto', username=username)  # Asume que tienes una vista para ver los detalles del contacto
+            formset.save()
+            return redirect('detalleContacto', username=username)
     else:
         form = ContactoForm(instance=contacto)
+        formset = ImagenContactoFormSet(instance=contacto)
 
-    context = {
-        'form': form,
-        'contacto': contacto,
-    }
-    return render(request, 'actualizarContacto.html', context)
-
+    return render(request, 'actualizarContacto.html', {'form': form, 'formset': formset, 'contacto': contacto})
 
 # vista para la galeria
 def galeria(request, username):
