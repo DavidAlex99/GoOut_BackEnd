@@ -44,7 +44,7 @@ urlpatterns = [
     path('<str:username>/menu/eliminarCategoriaComida/<int:categoriaComida_id>/', views.eliminarCategoriaComida, name='eliminarCategoriaComida'),
     path('<str:username>/menu/eliminarComida/<int:comida_id>/', views.eliminarComida, name='eliminarComida'),
 
-    path('<str:username>/acerca/', views.acerca, name="Acerca"),
+    path('<str:username>/subirAcerca/', views.subirSobreNos, name="subirSobreNos"),
     path('<str:username>/galeria/', views.galeria, name="Galeria"),
     # urls para eventos
     path('<str:username>/subirEvento/', views.subirEvento, name="SubirEvento"),

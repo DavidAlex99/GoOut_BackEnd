@@ -1,9 +1,11 @@
 from django import forms
-from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, SobreNos, Emprendedor, Emprendimiento
+from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, SobreNos, ImagenSobreNos , Emprendedor, Emprendimiento
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Emprendedor
+from django.forms import inlineformset_factory
+
 
 # formulario personalizado para el inicio de sesion
 class CustomLoginForm(AuthenticationForm):
@@ -125,3 +127,18 @@ class SobreNosForm(forms.ModelForm):
         widgets = {
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class ImagenSobreNosForm(forms.ModelForm):
+    class Meta:
+        model = ImagenSobreNos
+        fields = ['imagen']
+        widgets = {
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+
+ImagenSobreNosFormSet = inlineformset_factory(
+    SobreNos, ImagenSobreNos, 
+    form=ImagenSobreNosForm, 
+    extra=4,  # Puedes ajustar el número de formularios extra que quieres mostrar.
+    can_delete=True,  # Permite marcar imágenes para eliminar.
+)

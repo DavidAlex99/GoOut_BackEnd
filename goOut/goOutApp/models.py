@@ -142,4 +142,4 @@ class ImagenSobreNos(models.Model):
     updated = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Imagen para {self.sobreNos.emprendedor.nombre}"  # Mejora la representación en el admin
+        return f"Imagen para {self.sobreNos.emprendedor.nombre}"

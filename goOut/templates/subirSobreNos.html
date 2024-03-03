@@ -1,0 +1,21 @@
+<!-- se indic que va a heredar de base.html -->
+{% extends "base.html" %}
+
+<!-- se carga lo que esta en la carpeta static -->
+{% load static %}  
+{% load crispy_forms_tags %}
+<!-- aqui va el contenido cambiante -->
+{% block content %}
+
+<div class="container">
+    <h2>Agregar Sobre Nosotros</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ miFormularioSobreNos.as_p }}
+        {{ miFormularioImagenesSobreNos }}
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+{{request.POST}}
+
+{% endblock %}

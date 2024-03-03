@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
+from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
 from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto
 from django.contrib.auth.forms import UserCreationForm
@@ -22,7 +22,12 @@ from .serializers import EmprendimientoSerializer, EmprendedorSerializer
 # fin para serializar  traves de la API
 
 from django.forms import inlineformset_factory
-ImagenEventoFormSet = inlineformset_factory(Evento, ImagenEvento, form=ImagenEventoForm, extra=3)
+
+ImagenEventoFormSet = inlineformset_factory(
+    Evento, ImagenEvento, form=ImagenEventoForm, extra=3
+)
+
+
 
 # La vista personalizada para el inicio de sesión
 class CustomLoginView(LoginView):
@@ -57,7 +62,7 @@ def register(request):
 def crearEmprendimiento(request, username):
     # Asegúrate de que el nombre de usuario coincida con el usuario que ha iniciado sesión
     if request.user.username != username:
-        return redirect('Home')
+        return redirect('Menu', username=username) 
     
     # Obtiene o crea el perfil de emprendedor
     emprendedor, created = Emprendedor.objects.get_or_create(user=request.user)
@@ -91,7 +96,7 @@ def actualizarEmprendimiento(request, username):
         form = EmprendimientoForm(request.POST, request.FILES, instance=emprendimiento)
         if form.is_valid():
             form.save()
-            return redirect('Home')
+            return redirect('Menu', username=username) 
     else:
         form = EmprendimientoForm(instance=emprendimiento)
 
@@ -218,6 +223,31 @@ def acerca(request, username):
     else:
         formulario_servicio = SobreNosForm()
     return render(request, "acerca.html", {'miFormularioSobreNos': formulario_servicio})
+
+@login_required
+def subirSobreNos(request, username):
+    emprendedor = get_object_or_404(Emprendedor, user=request.user)
+
+    if request.method == 'POST':
+        form = SobreNosForm(request.POST)
+        formset = ImagenSobreNosFormSet(request.POST, request.FILES)
+
+        if form.is_valid() and formset.is_valid():
+            sobreNos = form.save(commit=False)
+            sobreNos.emprendedor = emprendedor
+            sobreNos.save()
+
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.sobreNos = sobreNos
+                instance.save()
+
+            return redirect('Menu', username=username)  
+    else:
+        form = SobreNosForm()
+        formset = ImagenSobreNosFormSet()
+
+    return render(request, 'subirSobreNos.html', {'miFormularioSobreNos': form, 'miFormularioImagenesSobreNos': formset})
 
 #vista para el contacto
 def contacto(request, username):
