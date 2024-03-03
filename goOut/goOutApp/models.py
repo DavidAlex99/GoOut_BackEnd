@@ -47,9 +47,7 @@ class ImagenEvento(models.Model):
 
     def __str__(self):
         return f"Imagen de {self.evento.titulo}"
-
-
-
+    
 # fin subclases de galeria 
 
 class Galeria(models.Model):
@@ -101,35 +99,45 @@ class Comida(models.Model):
         return self.nombre
 
 class Contacto(models.Model):
-    imagen = models.ImageField(upload_to='imagen_contacto')
-    correo = models.EmailField()
-    telefono = models.IntegerField()
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
-
-    def llenar_modificar_contacto(self):
-        return self.save()
-
-class Ubicacion(models.Model):
-    imagen = models.ImageField(upload_to='imagen_ubicacion')
+    descripcion = models.TextField()
     direccion = models.CharField(max_length=255)
     direccion_secundaria = models.CharField(max_length=255, blank=True, null=True)
+    correo = models.EmailField()
+    telefono = models.CharField(max_length=20) 
+    # campos que van a servir para el api google maps
+    latitud = models.FloatField(null=True, blank=True)  # Nuevo campo para latitud
+    longitud = models.FloatField(null=True, blank=True)  # Nuevo campo para longitud
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
-    def gurdar_ubicacion(self):
-        return self.save()
+# multiples imagenes como lugares referenciales etc
+class ImagenContacto(models.Model):
+    contacto = models.ForeignKey(Contacto, related_name='imagenesContacto', on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='imagen_contacto')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
 
 class SobreNos(models.Model):
-    descrpcion = models.TextField()
-    imagen = models.ImageField(upload_to='imagen_sobre_nos')
+    descripcion = models.TextField()
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
     def agregar_descripcion(self, descripcion):
-        self.descrpcion = descripcion
+        self.descripcion = descripcion  
         return self.save()
     
+    def __str__(self):
+        return f"Sobre {self.emprendedor.nombre}"  
+    
+# multiples imagenes como lugares referenciales etc
+class ImagenSobreNos(models.Model):
+    sobreNos = models.ForeignKey(SobreNos, related_name='imagenesSobreNos', on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='imagen_sobre_nos')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Imagen para {self.sobreNos.emprendedor.nombre}"  # Mejora la representación en el admin

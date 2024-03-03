@@ -33,10 +33,11 @@
                         <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Home' %}">Home</a></li>
                         
                         {% if request.user.is_authenticated %}
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'actualizarEmprendimiento' username=user.username %}">Actualizar mi emprendimiento</a></li>
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Acerca' username=user.username %}">Acerca de nosotros</a></li>
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Menu' username=user.username %}">Menu</a></li>
                             <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Galeria' username=user.username %}">Evento</a></li>
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Contacto' username=user.username %}">Contacto</a></li>
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'subirContacto' username=user.username %}">Contacto</a></li>
                         
                             <li class="nav-item">
                                 <form method="post" action="{% url 'logout' %}">
@@ -44,6 +45,8 @@
                                     <button type="submit" class="btn btn-danger">Cerrar sesión</button>
                                 </form>
                             </li>
+
+                            
 
                             {% else %}
                             <!-- Enlaces para usuarios no autenticados -->

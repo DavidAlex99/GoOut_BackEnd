@@ -1,5 +1,5 @@
 from django import forms
-from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, Ubicacion, SobreNos, Emprendedor, Emprendimiento
+from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, SobreNos, Emprendedor, Emprendimiento
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -104,28 +104,24 @@ class CategoriaComidaForm(forms.ModelForm):
             'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
 
-class UbicacionForm(forms.ModelForm):
-    class Meta:
-        model: Ubicacion
-        fields = ['direccion', 'direccion_secundaria', 'imagen']
-
 
 class ContactoForm(forms.ModelForm):
     class Meta:
         model = Contacto
-        fields = ['emprendedor', 'correo', 'telefono', 'imagen']
+        fields = ['descripcion', 'direccion', 'direccion_secundaria', 'correo', 'telefono', 'latitud', 'longitud']
         widgets = {
-            'emprendedor': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion_secundaria': forms.TextInput(attrs={'class': 'form-control'}),
             'correo': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.NumberInput(attrs={'class': 'form-control'}),
-            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'latitud': forms.NumberInput(attrs={'class': 'form-control'}),
+            'longitud': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-
 class SobreNosForm(forms.ModelForm):
     class Meta:
         model = SobreNos
-        fields = ['descrpcion', 'imagen']
+        fields = ['descripcion']
         widgets = {
-            'descrpcion': forms.TextInput(attrs={'class': 'form-control'}),
-            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
         }

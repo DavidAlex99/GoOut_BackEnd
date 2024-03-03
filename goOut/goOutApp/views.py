@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, UbicacionForm, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
+from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
 from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor
 from django.contrib.auth.forms import UserCreationForm
@@ -236,6 +236,28 @@ def contacto(request, username):
         formulario_servicio = ContactoForm()
     return render(request, "contacto.html", {'miFormularioContacto': formulario_servicio})
 
+@login_required
+def subirContacto(request, username):
+    # Se asegura que el usuario logueado es el mismo que el username en la URL
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+    
+    emprendedor = request.user.emprendedor
+    if request.method == 'POST':
+        formulario_servicio = ContactoForm(request.POST, request.FILES)
+        if formulario_servicio.is_valid():
+            contacto = formulario_servicio.save(commit=False)
+            contacto.emprendedor = emprendedor
+            contacto.save()
+            # Aquí podrías redirigir al usuario a la vista del perfil del emprendimiento
+            # o a cualquier otra parte que consideres adecuada
+            return redirect('detalle_contacto', username=username)
+        else:
+            print(formulario_servicio.errors)
+    else:
+        formulario_servicio = ContactoForm()
+
+    return render(request, "subirContacto.html", {'miFormularioContacto': formulario_servicio})
 
 #vista para la ubicacion
 def ubicacion(request, username):

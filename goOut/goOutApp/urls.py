@@ -55,7 +55,7 @@ urlpatterns = [
     path('<str:username>/evento/<int:evento_id>/', views.detalleEvento, name='detalleEvento'),
     
     path('<str:username>/ubicacion/', views.ubicacion, name="Ubicacion"),
-    path('<str:username>/contacto/', views.contacto, name="Contacto"),
+    path('<str:username>/subirContacto/', views.subirContacto, name='subirContacto'),
     # para el inciio de sesion
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

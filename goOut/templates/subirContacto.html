@@ -1,0 +1,63 @@
+<!-- se indic que va a heredar de base.html -->
+{% extends "base.html" %}
+
+<!-- se carga lo que esta en la carpeta static -->
+{% load static %}  
+{% load crispy_forms_tags %}
+
+<!-- aqui va el contenido cambiante -->
+{% block content %}
+
+<div class="container">
+    <h2>Subir Contacto</h2>
+    <!-- Div para el mapa de Google Maps -->
+    <div id="map" style="height: 400px; width: 100%;"></div>
+
+    <!-- Formulario de contacto -->
+    <form method="post" action="{% url 'subirContacto' username=request.user.username %}">
+        {% csrf_token %}
+        {{ miFormularioContacto.as_p }}
+        <input type="hidden" id="id_latitud" name="latitud" />
+        <input type="hidden" id="id_longitud" name="longitud" />
+        <button type="submit" class="btn btn-primary">Guardar Contacto</button>
+    </form>
+</div>
+{{request.POST}}
+
+<script>
+    let map;
+    let marker;
+
+    function initMap() {
+        const initialPosition = { lat: -34.397, lng: 150.644 }; // Puedes cambiar esto por una ubicación inicial predeterminada
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 8,
+            center: initialPosition,
+            mapTypeId: 'roadmap',
+        });
+
+        marker = new google.maps.Marker({
+            position: initialPosition,
+            map: map,
+            draggable: true, // Hacer el marcador arrastrable
+        });
+
+        // Actualizar los campos ocultos cuando el usuario arrastra el marcador.
+        google.maps.event.addListener(marker, 'dragend', function() {
+            document.getElementById('id_latitud').value = marker.getPosition().lat();
+            document.getElementById('id_longitud').value = marker.getPosition().lng();
+        });
+
+        // Si quieres que el usuario pueda hacer clic en el mapa para cambiar la ubicación del marcador:
+        map.addListener("click", (e) => {
+            marker.setPosition(e.latLng);
+            document.getElementById('id_latitud').value = e.latLng.lat();
+            document.getElementById('id_longitud').value = e.latLng.lng();
+        });
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&callback=initMap">
+</script>
+
+{% endblock %}
