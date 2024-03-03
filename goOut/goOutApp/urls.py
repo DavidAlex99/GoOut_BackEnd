@@ -54,8 +54,8 @@ urlpatterns = [
     # para ver los detalles internos del evento que se ha seleccionado
     path('<str:username>/evento/<int:evento_id>/', views.detalleEvento, name='detalleEvento'),
     
-    path('<str:username>/ubicacion/', views.ubicacion, name="Ubicacion"),
     path('<str:username>/subirContacto/', views.subirContacto, name='subirContacto'),
+    path('<str:username>/actualizarContacto/', views.actualizarContacto, name='actualizarContacto'),
     # para el inciio de sesion
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

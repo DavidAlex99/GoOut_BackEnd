@@ -10,6 +10,11 @@
 
 <div class="container">
     <h2>Subir Contacto</h2>
+
+    {% if request.user.is_authenticated %}
+        <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'actualizarContacto' username=user.username %}" style="color: aliceblue;">Actualizar contacto</a></li>
+    {% endif %}
+
     <!-- Div para el mapa de Google Maps -->
     <div id="map" style="height: 400px; width: 100%;"></div>
 

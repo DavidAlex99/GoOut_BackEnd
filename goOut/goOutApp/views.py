@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ContactoForm, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor
+from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 # para serialiara  traves de la API
 from rest_framework import viewsets
 from .serializers import EmprendimientoSerializer, EmprendedorSerializer
-# fin para serialiara  traves de la API
+# fin para serializar  traves de la API
 
 from django.forms import inlineformset_factory
 ImagenEventoFormSet = inlineformset_factory(Evento, ImagenEvento, form=ImagenEventoForm, extra=3)
@@ -259,26 +259,29 @@ def subirContacto(request, username):
 
     return render(request, "subirContacto.html", {'miFormularioContacto': formulario_servicio})
 
-#vista para la ubicacion
-def ubicacion(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
+@login_required
+def actualizarContacto(request, username):
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
-    
-    emprendedor = request.user.emprendedor
 
-    if request.method == "POST":
-        formulario_servicio = UbicacionForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            ubicacion = formulario_servicio.save(commit=False)
-            ubicacion.emprendedor = emprendedor
-            ubicacion.save()  
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
+    # Asume que cada emprendedor tiene un único objeto de contacto asociado.
+    emprendedor = get_object_or_404(Emprendedor, user=request.user)
+    contacto, created = Contacto.objects.get_or_create(emprendedor=emprendedor)
+
+    if request.method == 'POST':
+        form = ContactoForm(request.POST, request.FILES, instance=contacto)
+        if form.is_valid():
+            form.save()
+            return redirect('detalle_contacto', username=username)  # Asume que tienes una vista para ver los detalles del contacto
     else:
-        formulario_servicio = UbicacionForm()
-    return render(request, "ubicacion.html", {'miFormularioUbicacion': formulario_servicio})
+        form = ContactoForm(instance=contacto)
+
+    context = {
+        'form': form,
+        'contacto': contacto,
+    }
+    return render(request, 'actualizarContacto.html', context)
+
 
 # vista para la galeria
 def galeria(request, username):
