@@ -49,11 +49,13 @@ class EmprendimientoForm(forms.ModelForm):
 class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento
-        fields = ['titulo', 'descripcion', 'categoriaEvento']
+        fields = ['titulo', 'descripcion', 'categoriaEvento', 'disponibles', 'precio']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
-            'categoriaEvento': forms.Select(attrs={'class': 'form-control'})
+            'categoriaEvento': forms.Select(attrs={'class': 'form-control'}),
+            'disponibles': forms.NumberInput(attrs={'class': 'form-control'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 # constructor que hace que se pase como argumento adicional un emprendedor el cual se usara para filtrara
@@ -77,6 +79,16 @@ class ImagenEventoForm(forms.ModelForm):
     class Meta:
         model = ImagenEvento
         fields = ['imagen']
+        widgets = {
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+
+ImagenEventoFormSet = inlineformset_factory(
+    Evento, ImagenEvento, 
+    form=ImagenEventoForm, 
+    extra=4,  # Puedes ajustar el número de formularios extra que quieres mostrar.
+    can_delete=True,  # Permite marcar imágenes para eliminar.
+)
 
 class ComidaForm(forms.ModelForm):
     class Meta:

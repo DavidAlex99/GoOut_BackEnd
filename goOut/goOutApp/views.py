@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ImagenEventoForm, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm
+from .forms import EventoForm, CategoriaEventoForm, ImagenEventoFormSet, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
 from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto, SobreNos
 from django.contrib.auth.forms import UserCreationForm
@@ -22,11 +22,6 @@ from .serializers import EmprendimientoSerializer, EmprendedorSerializer
 # fin para serializar  traves de la API
 
 from django.forms import inlineformset_factory
-
-ImagenEventoFormSet = inlineformset_factory(
-    Evento, ImagenEvento, form=ImagenEventoForm, extra=3
-)
-
 
 
 # La vista personalizada para el inicio de sesión
@@ -339,7 +334,7 @@ def subirContacto(request, username):
             formulario_servicio = ContactoForm()
             formset = ImagenContactoFormSet()
 
-    return render(request, "subirContacto.html", {'form': formulario_servicio, 'formset': formset})
+    return render(request, "subirContacto.html", {'miFormularioContacto': formulario_servicio, 'miFormularioImagenesContacto': formset})
 
 @login_required
 def actualizarContacto(request, username):
@@ -360,7 +355,13 @@ def actualizarContacto(request, username):
         form = ContactoForm(instance=contacto)
         formset = ImagenContactoFormSet(instance=contacto)
 
-    return render(request, 'actualizarContacto.html', {'form': form, 'formset': formset, 'contacto': contacto})
+    context = {
+        'miFormularioContacto': form,
+        'miFormularioImagenesContacto': formset,
+        'contacto': contacto,
+    }    
+
+    return render(request, 'actualizarContacto.html', context)
 
 # vista para la galeria
 def galeria(request, username):
@@ -393,41 +394,41 @@ def detalleEvento(request, username, evento_id):
         'imagenes': imagenes,
         'username': username,
     }
-    return render(request, 'detalle_evento.html', context)
+    return render(request, 'detalleEvento.html', context)
 
 # para los formularios para subir imagen 
+@login_required
 def subirEvento(request, username):
-
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
     if request.user.username != username:
         return redirect('user_profile', username=request.user.username)
 
-    emprendedor = request.user.emprendedor
+    emprendedor = get_object_or_404(Emprendedor, user=request.user)
 
     if request.method == "POST":
-        formulario_servicio = EventoForm(request.POST, request.FILES, emprendedor=emprendedor) 
+        formulario_evento = EventoForm(request.POST, request.FILES, emprendedor=emprendedor) 
         formset = ImagenEventoFormSet(request.POST, request.FILES)
 
-        if formulario_servicio.is_valid() and formset.is_valid():
-            evento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            evento.emprendedor = emprendedor  # Asigna el usuario logueado al objeto comida
-            evento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
+        if formulario_evento.is_valid() and formset.is_valid():
+            evento = formulario_evento.save(commit=False)
+            evento.emprendedor = emprendedor
+            evento.save()
             
             # Guarda cada una de las imágenes asociadas con el evento
-            # Ahora guardamos el formset
             imagenes = formset.save(commit=False)
             for imagen in imagenes:
                 imagen.evento = evento
                 imagen.save()
-            
+
+            # Puedes redirigir a donde consideres adecuado después de guardar el evento y sus imágenes
             return redirect('Galeria', username=username) 
         else:
-            print(formulario_servicio.errors, formset.errors)
+            print(formulario_evento.errors, formset.errors)
     else:
-        formulario_servicio = EventoForm(emprendedor=emprendedor)
+        formulario_evento = EventoForm(emprendedor=emprendedor)
         formset = ImagenEventoFormSet()
 
-    return render(request, "subirEvento.html", {'miFormularioEvento': formulario_servicio, 'miFormularioImagenesEvento': formset})
+    return render(request, "subirEvento.html", {'miFormularioEvento': formulario_evento, 'miFormularioImagenesEvento': formset})
 
 def subirCategoriaEvento(request, username):
     # Asegúrate de que el usuario logueado es el mismo que el del URL.
