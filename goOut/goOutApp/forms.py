@@ -129,15 +129,9 @@ class ContactoForm(forms.ModelForm):
             'direccion_secundaria': forms.TextInput(attrs={'class': 'form-control'}),
             'correo': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.NumberInput(attrs={'class': 'form-control'}),
+            # campos que se va usar para la api de google maps
             'latitud': forms.NumberInput(attrs={'class': 'form-control'}),
             'longitud': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
-class SobreNosForm(forms.ModelForm):
-    class Meta:
-        model = SobreNos
-        fields = ['descripcion']
-        widgets = {
-            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 class ImagenContactoForm(forms.ModelForm):
@@ -154,6 +148,14 @@ ImagenContactoFormSet = inlineformset_factory(
     extra=4,  # Puedes ajustar el número de formularios extra que quieres mostrar.
     can_delete=True,  # Permite marcar imágenes para eliminar.
 )
+    
+class SobreNosForm(forms.ModelForm):
+    class Meta:
+        model = SobreNos
+        fields = ['descripcion']
+        widgets = {
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 class ImagenSobreNosForm(forms.ModelForm):
     class Meta:

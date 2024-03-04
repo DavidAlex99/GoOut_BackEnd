@@ -42,9 +42,11 @@ INSTALLED_APPS = [
     'crispy_forms', 
     'crispy_bootstrap4',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'goOut.urls'
@@ -72,6 +75,8 @@ TEMPLATES = [
     },
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 WSGI_APPLICATION = 'goOut.wsgi.application'
 
 
@@ -81,7 +86,7 @@ WSGI_APPLICATION = 'goOut.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'goOut',
+        'NAME': 'goOut2',
         'USER': 'postgres',       
         'POST': 5432,
         'HOST': '127.0.0.1',

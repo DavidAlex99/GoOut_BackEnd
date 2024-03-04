@@ -6,7 +6,7 @@
     <p>{{ sobreNos.descripcion }}</p>
 
     <!-- Mostrar todas las imágenes asociadas -->
-    {% for imagen in sobreNos.imagenessobrenos_set.all %}
+    {% for imagen in sobreNos.imagenesSobreNos_set.all %}
         <img src="{{ imagen.imagen.url }}" alt="Imagen" style="width:100px;height:100px;">
     {% endfor %}
 

@@ -23,5 +23,6 @@ function updateImagePreview() {
     }
 }
 
+
 // Añadir el listener al campo de archivo para que llame a la función de actualización
 document.getElementById('id_imagen').addEventListener('change', updateImagePreview);

@@ -8,7 +8,7 @@
     <p>{{ contacto.direccion_secundaria }}</p>
 
     <!-- Mostrar todas las imágenes asociadas -->
-    {% for imagen in contacto.imagenescontacto_set.all %}
+    {% for imagen in contacto.imagenesContacto_set.all %}
         <img src="{{ imagen.imagen.url }}" alt="Imagen" style="width:100px;height:100px;">
     {% endfor %}
 

@@ -34,10 +34,7 @@
             {{miFormularioEvento|crispy}}
             <!-- para la subida de multiples imagenes -->
             <!-- Aquí se muestran los formularios para las imágenes -->
-            {{ miFormularioImagenesEvento.management_form }} <!-- Esto es necesario para formsets -->
-                {% for form in miFormularioImagenesEvento %}
-                    {{ form.as_p }}
-                {% endfor %}
+            {{ miFormularioImagenesEvento }}
             <input type="submit" style="width: 150px;" value="Enviar">
         </form>       
     </div>
