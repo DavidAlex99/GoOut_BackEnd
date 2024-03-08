@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Actualizar Información de Contacto</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ miFormularioContacto.as_p }}
+  {{ miFormularioImagenesContacto.management_form }}
+  {% for form in miFormularioImagenesContacto %}
+    {% if form.instance.pk %}
+      <img src="{{ form.instance.imagen.url }}" alt="Imagen actual" />
+      <p>Eliminar? {{ form.DELETE }}</p>
+    {% endif %}
+    {{ form.as_p }}
+  {% endfor %}
+  <button type="submit">Actualizar Contacto</button>
+</form>
+{% endblock %}

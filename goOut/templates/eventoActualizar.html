@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Actualizar Evento: {{ evento.titulo }}</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ miFormularioEvento.as_p }}
+  {{ miFormularioImagenesEvento.management_form }}
+  {% for form in miFormularioImagenesEvento %}
+    {% if form.instance.pk %}  <!-- Si existe la imagen, muestra la actual -->
+      <img src="{{ form.instance.imagen.url }}" alt="Imagen actual" />
+      <p>Marcar para eliminar: {{ form.DELETE }}</p>
+    {% endif %}
+    {{ form.as_p }}
+  {% endfor %}
+  <button type="submit">Actualizar Evento</button>
+</form>
+
+{% endblock %}

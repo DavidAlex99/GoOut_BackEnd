@@ -1,5 +1,5 @@
 from django import forms
-from .models import ImagenEvento, Evento, CategoriaEvento, Comida, CategoriaComida, Contacto, ImagenContacto, SobreNos, ImagenSobreNos , Emprendedor, Emprendimiento
+from .models import ImagenEvento, Evento, Comida, Contacto, ImagenContacto, SobreNos, ImagenSobreNos , Emprendedor, Emprendimiento
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -43,36 +43,23 @@ class EmprendedorRegisterForm(UserCreationForm):
 class EmprendimientoForm(forms.ModelForm):
     class Meta:
         model = Emprendimiento
-        fields = ['nombre', 'descripcion']
-        # Agrega aquí cualquier widget o configuración adicional
+        fields = ['nombre', 'descripcion', 'categoria']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
+        }
 
 class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento
-        fields = ['titulo', 'descripcion', 'categoriaEvento', 'disponibles', 'precio']
+        fields = ['titulo', 'descripcion', 'categoria', 'disponibles', 'precio']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
-            'categoriaEvento': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
             'disponibles': forms.NumberInput(attrs={'class': 'form-control'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
-
-# constructor que hace que se pase como argumento adicional un emprendedor el cual se usara para filtrara
-# por las categorias que son propias del emprendedor
-    def __init__(self, *args, **kwargs):
-        emprendedor = kwargs.pop('emprendedor', None)
-        super(EventoForm, self).__init__(*args, **kwargs)
-        if emprendedor:
-            self.fields['categoriaEvento'].queryset = CategoriaEvento.objects.filter(emprendedor=emprendedor)
-
-class CategoriaEventoForm(forms.ModelForm):
-    class Meta:
-        model = CategoriaEvento
-        fields = ['nombre', 'imagen']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
         }
 
 class ImagenEventoForm(forms.ModelForm):
@@ -93,29 +80,14 @@ ImagenEventoFormSet = inlineformset_factory(
 class ComidaForm(forms.ModelForm):
     class Meta:
         model = Comida
-        fields = ['nombre', 'precio', 'descripcion', 'categoriaComida', 'imagen']
+        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'categoria', 'emprendimiento']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
-            'categoriaComida': forms.Select(attrs={'class': 'form-control'}),
-            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
-        }
-# constructor que hace que se pase como argumento adicional un emprendedor el cual se usara para filtrara
-# por las categorias que son propias del emprendedor
-    def __init__(self, *args, **kwargs):
-        emprendedor = kwargs.pop('emprendedor', None)
-        super(ComidaForm, self).__init__(*args, **kwargs)
-        if emprendedor:
-            self.fields['categoriaComida'].queryset = CategoriaComida.objects.filter(emprendedor=emprendedor)
-
-class CategoriaComidaForm(forms.ModelForm):
-    class Meta:
-        model = CategoriaComida
-        fields = ['nombre', 'imagen']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'imagen': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'emprendimiento': forms.HiddenInput(),  # Asumiendo que se establece automáticamente en la vista o está oculto para el usuario.
         }
 
 
@@ -145,9 +117,10 @@ class ImagenContactoForm(forms.ModelForm):
 ImagenContactoFormSet = inlineformset_factory(
     Contacto, ImagenContacto, 
     form=ImagenContactoForm, 
-    extra=4,  # Puedes ajustar el número de formularios extra que quieres mostrar.
+    extra=4,  # Cambiado de 4 a 0 para no mostrar formularios extras por defecto.
     can_delete=True,  # Permite marcar imágenes para eliminar.
 )
+
     
 class SobreNosForm(forms.ModelForm):
     class Meta:

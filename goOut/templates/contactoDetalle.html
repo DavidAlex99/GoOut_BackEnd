@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Detalle de Contacto</h2>
+<p>{{ contacto.descripcion }}</p>
+<p>{{ contacto.direccion }}</p>
+<p>{{ contacto.correo }}</p>
+<p>{{ contacto.telefono }}</p>
+<!-- Aquí iría la implementación de la API de Google Maps para la latitud y longitud -->
+{% for imagen in imagenes %}
+  <img src="{{ imagen.imagen.url }}" alt="Imagen de contacto" />
+{% endfor %}
+<a href="{% url 'contactoActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre %}">Actualizar Contacto</a>
+{% endblock %}

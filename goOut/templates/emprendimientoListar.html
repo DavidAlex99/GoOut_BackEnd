@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Mis Emprendimientos</h2>
+    
+    {% if emprendimientos.exists %}
+        <div class="list-group">
+            {% for emprendimiento in emprendimientos %}
+                <a href="{% url 'emprendimientoHome' username=username nombreEmprendimiento=emprendimiento.nombre %}" class="list-group-item list-group-item-action">
+                    {{ emprendimiento.nombre }}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No tienes ningún emprendimiento registrado. ¡Registra uno nuevo!
+        </div>
+    {% endif %}
+    
+    <a href="{% url 'crearEmprendimiento' username=username %}" class="btn btn-primary mt-3">Agregar Nuevo Emprendimiento</a>
+</div>
+{% endblock %}

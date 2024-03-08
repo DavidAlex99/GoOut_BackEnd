@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Bienvenido al Emprendimiento: {{ emprendimiento.nombre }}</h1>
+<div>
+    <p><strong>Descripción:</strong> {{ emprendimiento.descripcion }}</p>
+    <p><strong>Categoría:</strong> {{ emprendimiento.get_categoria_display }}</p>
+    <p><strong>Emprendedor:</strong> {{ emprendimiento.emprendedor.nombre }}</p>
+</div>
+<a href="/{{ emprendimiento.emprendedor.user.username }}/">Volver al perfil</a>
+{% endblock %}

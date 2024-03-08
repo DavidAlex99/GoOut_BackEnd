@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Subir un Nuevo Evento</h2>  
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ miFormularioEvento.as_p }}
+        {{ miFormularioImagenesEvento.management_form }}
+        {% for form in miFormularioImagenesEvento %}
+            {{ form.as_p }}
+        {% endfor %}
+        <button type="submit">Subir Evento</button>
+    </form>
+</div>
+
+
+
+{% endblock %}

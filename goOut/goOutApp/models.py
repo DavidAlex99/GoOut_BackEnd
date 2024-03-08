@@ -13,29 +13,39 @@ class Emprendedor(models.Model):
     updated=models.DateTimeField(auto_now_add=True)
 
 class Emprendimiento(models.Model):
+    CATEGORIAS = [
+        ('REST', 'Restaurante'),
+        ('BAR', 'Bar'),
+        ('DISCO', 'Discoteca'),
+        ('CAFE', 'Cafetería'),
+        ('TIENDA', 'Tienda'),
+        ('SERV', 'Servicios'),
+        ('OTRO', 'Otro'),
+    ]
+    
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    categoria = models.CharField(max_length=10, choices=CATEGORIAS, default='OTRO')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
-
-class CategoriaEvento(models.Model):
-    nombre = models.CharField(max_length=100)
-    imagen = models.ImageField(upload_to='imagen_categoria_evento')
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
-
-    # como va a aprecer en el panel de administrador
-    def __str__(self):
-        return self.nombre
 
 #subclases de Galeria
 class Evento(models.Model):
+    CATEGORIAS_EVENTO = [
+        ('ARTISTICAS', 'Concierto'),
+        ('CULTURALES', 'Teatro'),
+        ('DEPORTIVO', 'Deportivo'),
+        ('AIRE_LIBRE', 'Aire_libre'),
+        ('NOCTURNO', 'Nocturno'),
+        ('AUTO_CONTROL', 'Auto_control'),
+        ('ACT_FANCY', 'Act_fancy'),
+    ]
+
     titulo = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
-    categoriaEvento = models.ForeignKey(CategoriaEvento, on_delete=models.CASCADE)
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    categoria = models.CharField(max_length=15, choices=CATEGORIAS_EVENTO, default='OTRO')
+    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
     disponibles = models.IntegerField()
     precio = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.0)])
     created=models.DateTimeField(auto_now_add=True)
@@ -54,7 +64,7 @@ class ImagenEvento(models.Model):
 
 class Galeria(models.Model):
     eventos = models.ManyToManyField(Evento)
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -63,25 +73,23 @@ class Galeria(models.Model):
         return self.save()
 
 # subclases de menu
-    
-class CategoriaComida(models.Model):
-    nombre = models.CharField(max_length=100)
-    imagen = models.ImageField(upload_to='imagen_categoria_comida')
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
-    created=models.DateTimeField(auto_now_add=True)
-    updated=models.DateTimeField(auto_now_add=True)
-
-    # como va a aprecer en el panel de administrador
-    def __str__(self):
-        return self.nombre
-    
 class Comida(models.Model):
+    CATEGORIAS_COMIDA = [
+        ('ENTRANTE', 'Entrante'),
+        ('PRINCIPAL', 'Plato Principal'),
+        ('POSTRE', 'Postre'),
+        ('BEBIDA', 'Bebida'),
+        ('SNACKS', 'snacks'),
+        ('OTRO', 'Otro'),
+    ]
+     
+    # Atributos existentes
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.0)])
     descripcion = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to='imagen_comida')
-    categoriaComida = models.ForeignKey(CategoriaComida, on_delete=models.CASCADE)
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    categoria = models.CharField(max_length=10, choices=CATEGORIAS_COMIDA, default='OTRO')
+    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -109,7 +117,7 @@ class Contacto(models.Model):
     # campos que van a servir para el api google maps
     latitud = models.FloatField(null=True, blank=True)  # Nuevo campo para latitud
     longitud = models.FloatField(null=True, blank=True)  # Nuevo campo para longitud
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -123,7 +131,7 @@ class ImagenContacto(models.Model):
 
 class SobreNos(models.Model):
     descripcion = models.TextField()
-    emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 

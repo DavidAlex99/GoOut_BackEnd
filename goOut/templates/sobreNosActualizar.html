@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Actualizar Comida</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ miFormularioComida.as_p }}
+        <div class="current-image">
+            <h4>Imagen Actual:</h4>
+            <img src="{{ comida.imagen.url }}" alt="Imagen actual de comida" style="width: 200px; height: auto;">
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+    </form>
+</div>
+{% endblock %}

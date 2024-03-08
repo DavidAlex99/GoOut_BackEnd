@@ -1,74 +1,18 @@
-<!-- se indic que va a heredar de base.html -->
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-<!-- se carga lo que esta en la carpeta static -->
-{% load static %}  
-{% load crispy_forms_tags %}
-<!-- aqui va el contenido cambiante -->
 {% block content %}
-
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirComida' username=user.username %}" style="color: white;">Agregar alimento</a></button>
-</div>
-
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaComida' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
-</div>
-
-<div class="row">
-    {% for categoriaComida in categoriasComida %}
-    <div class="col-md-4">
-        <div class="card border-primary mb-3" style="max-width: 20rem;">
-            <div class="card-header">{{categoriaComida.nombre}}</div>
-            <div class="card-body">
-                <img src="{{categoriaComida.imagen.url}}" class="card-img-top">
-                <!-- se usa formulario en produccion para eliminar la categoria -->
-                <!-- se usa un formulario por custiones d e seguridad por ataques csrf -->
-                <form method="post" action="{% url 'eliminarCategoriaComida' username=username categoriaComida_id=categoriaComida.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar esta categoría y todos los alimentos asociados?');">
-                        Eliminar Categoría
-                    </button>
-                </form>
-
-            </div>
-        </div>
-    </div>
-    
+<div class="container">
+    <h2>Menu</h2>
+    {% for categoria, comidas in comidas_por_categoria.items %}
+    <h3>{{ categoria }}</h3>
+    <ul>
+        {% for comida in comidas %}
+        <li>
+            {{ comida.nombre }} - <a href="{% url 'comidaDetalle' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre id=comida.id %}">Ver Detalles</a>
+        </li>
+        {% endfor %}
+    </ul>
     {% endfor %}
+    <a href="{% url 'comidaSubir' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre %}" class="btn btn-primary">Agregar Comida</a>
 </div>
-
-<div></div>
-
-
-<!-- categorias disponibles -->
-
-
-<div class="row">
-    <!-- aqui se hace un for para cada servicio -->
-    {% for comida in comidas %}
-        <div class="col-md-4">
-            <div class="card border-primary mb-3" style="max-width: 20rem;">
-                <div class="card-header">{{comida.nombre}}</div>
-                <div class="card-body">
-                    <img src="{{comida.imagen.url}}" class="card-img-top">
-
-                    <p class="card-text">Precio: {{comida.precio}}</p>
-
-                    <!-- formulario para eliminar una comida -->
-                    <form method="post" action="{% url 'eliminarComida' username=username comida_id=comida.id %}">
-                        {% csrf_token %}
-                        <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar esta comida?');">
-                            Eliminar Comida
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-    {% endfor %}
-
-</div>
-
-
 {% endblock %}

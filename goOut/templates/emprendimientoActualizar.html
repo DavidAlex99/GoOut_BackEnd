@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Actualizar Emprendimiento: {{ emprendimiento.nombre }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ miFormularioActualizarEmprendimiento.as_p }}
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+</form>
+{% endblock %}

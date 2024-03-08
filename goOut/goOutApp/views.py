@@ -1,11 +1,11 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .forms import EventoForm, CategoriaEventoForm, ImagenEventoFormSet, ComidaForm, CategoriaComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm
+from .forms import EventoForm, ImagenEventoFormSet, ComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm, ImagenSobreNosForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, CategoriaEvento, ImagenEvento, Comida, CategoriaComida, Emprendimiento, Emprendedor, Contacto, SobreNos
+from .models import Evento, ImagenEvento, Comida, Emprendimiento, Emprendedor, ImagenContacto, Contacto, SobreNos, ImagenSobreNos
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -15,6 +15,8 @@ from django.db import transaction
 from django.http import HttpResponseNotAllowed
 import os
 from django.contrib.auth.models import User
+from itertools import groupby
+from operator import attrgetter
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
@@ -27,11 +29,14 @@ from django.forms import inlineformset_factory
 # La vista personalizada para el inicio de sesión
 class CustomLoginView(LoginView):
     template_name = 'login.html'
-    form_class = CustomLoginForm  # Asegúrate de tener un CustomLoginForm o puedes usar el predeterminado
+    form_class = CustomLoginForm
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('user_profile', kwargs={'username': self.request.user.username})
+        # Después de iniciar sesión, en lugar de ir al perfil del usuario,
+        # vamos a redirigirlo a la lista de sus emprendimientos.
+        return reverse_lazy('emprendimientoListar', kwargs={'username': self.request.user.username})
+
 
 # La vista del perfil de usuario
 @login_required
@@ -41,468 +46,362 @@ def user_profile(request, username):
         return redirect('user_profile', username=request.user.username)
     return render(request, 'user_profile.html', {'username': username})
 
-# La vista para el registro de usuarios
+# Vista de registro
 def register(request):
     if request.method == 'POST':
-        formulario_servicio = EmprendedorRegisterForm(request.POST)
-        if formulario_servicio.is_valid():
-            user = formulario_servicio.save()
+        formulario_registro = EmprendedorRegisterForm(request.POST)
+        if formulario_registro.is_valid():
+            user = formulario_registro.save()
             login(request, user)
-            return redirect('crearEmprendimiento', username=user.username)
+            # Redirigir a 'misEmprendimientos' después de registrar usuario y emprendedor.
+            return redirect(reverse('emprendimientoListar', kwargs={'username': user.username}))
     else:
-        formulario_servicio = EmprendedorRegisterForm()
-    return render(request, 'register.html', {'miFormularioRegistroUsuario': formulario_servicio})
+        formulario_registro = EmprendedorRegisterForm()
+    return render(request, 'register.html', {'miFormularioRegistroUsuario': formulario_registro})
 
-# registro del nuevo emprendimiento@login_required
+# visa para cerrar sesion
+def logout_page(request):
+    return render(request, 'logout_page.html')
+
+# vista para poder ver los emprendimientos
+# la cambie de nombre de mi emprendimientos
+@login_required
+def emprendimientoListar(request, username):
+    # Asegúrate de que el usuario accediendo a la página es el mismo que el 'username' en la URL.
+    if request.user.username != username:
+        return redirect('user_profile', username=request.user.username)
+    
+    # Obtén todos los emprendimientos asociados al usuario.
+    emprendimientos = Emprendimiento.objects.filter(emprendedor__user=request.user)
+    
+    return render(request, 'emprendimientoListar.html', {'emprendimientos': emprendimientos, 'username': username})
+
+# vista agregad
+@login_required
 def crearEmprendimiento(request, username):
-    # Asegúrate de que el nombre de usuario coincida con el usuario que ha iniciado sesión
-    if request.user.username != username:
-        return redirect('Menu', username=username) 
-    
-    # Obtiene o crea el perfil de emprendedor
-    emprendedor, created = Emprendedor.objects.get_or_create(user=request.user)
-    
     if request.method == 'POST':
-        formulario_servicio = EmprendimientoForm(request.POST)
-        if formulario_servicio.is_valid():
-            emprendimiento = formulario_servicio.save(commit=False)
-            emprendimiento.emprendedor = emprendedor
-            emprendimiento.save()
-            return redirect('user_profile', username=username)
-    else:
-        formulario_servicio = EmprendimientoForm()
-
-    return render(request, 'crearEmprendimiento.html', {'miFormularioCrearEmprendimiento': formulario_servicio})
-
-@login_required
-def actualizarEmprendimiento(request, username):
-    # Asegúrate de que el usuario que hace la solicitud es el mismo que el del username en la URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    # Obtiene el perfil de emprendedor basado en el usuario que ha iniciado sesión.
-    user = get_object_or_404(User, username=username)
-    emprendedor = get_object_or_404(Emprendedor, user=user)
-
-    # Intenta obtener el emprendimiento asociado con el emprendedor. Si no existe, crea uno nuevo.
-    emprendimiento, created = Emprendimiento.objects.get_or_create(emprendedor=emprendedor)
-
-    if request.method == 'POST':
-        form = EmprendimientoForm(request.POST, request.FILES, instance=emprendimiento)
+        form = EmprendimientoForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('Menu', username=username) 
+            emprendimiento = form.save(commit=False)
+            emprendimiento.emprendedor = request.user.emprendedor  # Asegúrate de que esta relación exista
+            emprendimiento.save()
+            return redirect('emprendimientoHome', username=username, nombreEmprendimiento=emprendimiento.nombre)
     else:
-        form = EmprendimientoForm(instance=emprendimiento)
+        form = EmprendimientoForm()
+    return render(request, 'emprendimientoCrear.html', {'miFormularioCrearEmprendimiento': form})
 
-    context = {
-        'form': form,
-        'emprendimiento': emprendimiento,
-    }
-    return render(request, 'actualizarEmprendimiento.html', context)
 
-def home(request):
-    return render(request, "home.html")
-
-def menu(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-     # aqui se renderizaran los eventos de la base de datos de acuerdo al emprendedor
-    emprendedor = request.user.emprendedor
-    categoriasComida = CategoriaComida.objects.filter(emprendedor=emprendedor)
-    comidas = Comida.objects.filter(emprendedor=emprendedor)
-    context = {
-        # los elementos de la bbdd que se van a renderizar
-        "categoriasComida": categoriasComida,
-        "comidas": comidas,
-        "username": username,
-    }
-    return render(request, "menu.html", context)
-
-def subirComida(request, username):
-    # se pasa el emprendedor que esta logueado actualmente
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
+# pagina de inicio despues de logueo de usuario y emprendimiento
+# vista agregada
+def emprendimientoHome(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
     
-    emprendedor = request.user.emprendedor
-    if request.method == "POST":
-        # se pasa como argumento adicional el emprendedor actual al forms
-        formulario_servicio = ComidaForm(request.POST, request.FILES, emprendedor=emprendedor) 
-        if formulario_servicio.is_valid():
-            comida = formulario_servicio.save(commit=False) # Guarda el formulario pero no el objeto
-            comida.emprendedor = emprendedor  # Asigna el usuario logueado al objeto comida
-            comida.save()
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        # Pasar el emprendedor al inicializar el formulario para filtrar las categorías
-        formulario_servicio = ComidaForm(emprendedor=emprendedor)
-    return render(request, "subirComida.html", {'miFormularioComida': formulario_servicio})
+    # Ejemplo de obtención de productos relacionados con el emprendimiento
+    #productos = Producto.objects.filter(emprendimiento=emprendimiento)
 
-def subirCategoriaComida(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = CategoriaComidaForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            categoriaComida = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            categoriaComida.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
-            categoriaComida.save()  # Ahora guarda el objeto comida con el emprendedor asignado
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = CategoriaComidaForm()
-    return render(request, "subirCategoriaComida.html", {'miFormularioCategoriaComida': formulario_servicio})
-
-@login_required
-def eliminarCategoriaComida(request, username, categoriaComida_id):
-    # Solo permitir esta acción si el método es POST y el usuario está autenticado
-    if request.method == "POST" and request.user.username == username:
-        categoria = get_object_or_404(CategoriaComida, id=categoriaComida_id, emprendedor=request.user.emprendedor)
-        
-         # Eliminar las imágenes de los alimentos asociados a la categoría
-        comidas = Comida.objects.filter(categoriaComida=categoria)
-        for comida in comidas:
-            if comida.imagen and os.path.isfile(comida.imagen.path):
-                os.remove(comida.imagen.path)
-            comida.delete()  # Eliminar la instancia de Comida
-
-        # Eliminar la imagen de la categoría
-        if categoria.imagen and os.path.isfile(categoria.imagen.path):
-            os.remove(categoria.imagen.path)
-        
-        categoria.delete()  # Eliminar la instancia de CategoriaComida
-        messages.success(request, "Categoría y alimentos asociados eliminados correctamente.")
-        return redirect('Menu', username=username)
-
-    else:
-        messages.error(request, "No se puede eliminar la categoría.")
-        return redirect('Menu', username=username)
-
-@login_required
-def eliminarComida(request, username, comida_id):
-
-    # Asegúrate de que el método es POST y que el usuario está autenticado
-    if request.method == "POST" and request.user.username == username:
-        comida = get_object_or_404(Comida, id=comida_id, emprendedor=request.user.emprendedor)
-        
-        # Eliminar la imagen asociada con la comida, si existe
-        if comida.imagen and os.path.isfile(comida.imagen.path):
-            os.remove(comida.imagen.path)
-        
-        comida.delete()  # Elimina la instancia de Comida
-        
-        messages.success(request, "Comida eliminada correctamente.")
-        return redirect('Menu', username=username)
-    else:
-        messages.error(request, "No se puede eliminar la comida.")
-        return redirect('Menu', username=username)
-
-def detalleSobreNos(request, username):
-# Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = SobreNosForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            formulario_servicio.save()  
-            return redirect('Menu', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = SobreNosForm()
-    return render(request, "detalleSobreNos.html", {'miFormularioSobreNos': formulario_servicio})
-
-@login_required
-def detalleSobreNos(request, username):
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-    
-    emprendedor = get_object_or_404(Emprendedor, user=request.user)
-    sobreNos = get_object_or_404(SobreNos, emprendedor=emprendedor)
-
-    context = {
-        'sobreNos': sobreNos,
+    return render(request, 'emprendimientoHome.html', {
         'username': username,
-    }
-    return render(request, 'detalleSobreNos.html', context)
-
-@login_required
-def subirSobreNos(request, username):
-    emprendedor = get_object_or_404(Emprendedor, user=request.user)
-
-    # Verifica si ya existe información sobre nosotros para este emprendedor
-    try:
-        sobreNos = SobreNos.objects.get(emprendedor=emprendedor)
-        # Si existe, redirige al usuario a la vista de detalles de Sobre Nosotros
-        return redirect('detalleSobreNos', username=username)
-    except SobreNos.DoesNotExist:
-        # Si no existe, permite al usuario crearla
-        if request.method == 'POST':
-            form = SobreNosForm(request.POST)
-            formset = ImagenSobreNosFormSet(request.POST, request.FILES)
-            if form.is_valid() and formset.is_valid():
-                sobreNos = form.save(commit=False)
-                sobreNos.emprendedor = emprendedor
-                sobreNos.save()
-                instances = formset.save(commit=False)
-                for instance in instances:
-                    instance.sobreNos = sobreNos
-                    instance.save()
-                return redirect('detalleSobreNos', username=username)  # Redirige a los detalles después de crear
-        else:
-            form = SobreNosForm()
-            formset = ImagenSobreNosFormSet()
-
-    return render(request, 'subirSobreNos.html', {'miFormularioSobreNos': form, 'miFormularioImagenesSobreNos': formset})
+        'emprendimiento': emprendimiento,
+        #'productos': productos,  # Añadir productos al contexto
+    })
 
 
 @login_required
-def actualizarSobreNos(request, username):
-    # Asegúrate de que el usuario que hace la solicitud es el mismo que el del username en la URL.
+def detalleEmprendimiento(request, username, emprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=emprendimiento.nombre, emprendedor__user__username=username)
+    return render(request, 'emprendimientoDetalle.html', {'emprendimiento': emprendimiento})
+
+
+# para agregar un emprendimiento despues de registrarse o iniciar sesion
+@login_required
+def emprendimientoAgregar(request, username):
     if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
+        return redirect('login')
+    
+    emprendedor_instance = get_object_or_404(Emprendedor, user=request.user)
+    
+    if request.method == 'POST':
+        form = EmprendimientoForm(request.POST)
+        if form.is_valid():
+            emprendimiento = form.save(commit=False)
+            emprendimiento.emprendedor = emprendedor_instance
+            emprendimiento.save()
+            return redirect('emprendimientoHome', username=username, nombreEmprendimiento=emprendimiento.nombre)
+    else:
+        form = EmprendimientoForm()
+    
+    context = {'miFormularioNuevoEmprendimiento': form}
+    return render(request, 'emprendimientoAgregar.html', context)
 
-    emprendedor = get_object_or_404(Emprendedor, user=request.user)
-    sobreNos, created = SobreNos.objects.get_or_create(emprendedor=emprendedor)
 
+@login_required
+def subirSobreNos(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    if request.method == 'POST':
+        form = SobreNosForm(request.POST)
+        formset = ImagenSobreNosFormSet(request.POST, request.FILES)
+        if form.is_valid() and formset.is_valid():
+            sobreNos = form.save(commit=False)
+            sobreNos.emprendimiento = emprendimiento
+            sobreNos.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.sobreNos = sobreNos
+                instance.save()
+            return redirect('sobreNosDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
+    else:
+        form = SobreNosForm()
+        formset = ImagenSobreNosFormSet()
+    return render(request, 'sobreNosSubir.html', {
+        'miFormularioSobreNos': form,
+        'miFormularioImagenesSobreNos': formset,
+        'emprendimiento': emprendimiento,
+        'username': username,
+    })
+
+
+@login_required
+def detalleSobreNos(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    sobreNos = get_object_or_404(SobreNos, emprendimiento=emprendimiento)
+    imagenes = sobreNos.imagenesSobreNos.all()
+    return render(request, 'sobreNosDetalle.html', {
+        'sobreNos': sobreNos,
+        'imagenes': imagenes,
+        'emprendimiento': emprendimiento
+    })
+
+@login_required
+def actualizarSobreNos(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    sobreNos, created = SobreNos.objects.get_or_create(emprendimiento=emprendimiento)
+
+    ImagenSobreNosFormSet = inlineformset_factory(SobreNos, ImagenSobreNos, form=ImagenSobreNosForm, extra=4, can_delete=True)
+    
     if request.method == 'POST':
         form = SobreNosForm(request.POST, instance=sobreNos)
         formset = ImagenSobreNosFormSet(request.POST, request.FILES, instance=sobreNos)
-
+        
         if form.is_valid() and formset.is_valid():
             form.save()
+
+            # Procesar las instancias del formset para eliminar las imágenes marcadas para borrado
+            for form in formset.deleted_forms:
+                if form.instance.pk:
+                    # Esto elimina el archivo del sistema de archivos y la instancia de la base de datos
+                    form.instance.delete()
+
             formset.save()
-            return redirect('detalleSobreNos', username=username)  # Asume que tienes una vista para ver los detalles de SobreNos
+            return redirect('sobreNosDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
     else:
         form = SobreNosForm(instance=sobreNos)
         formset = ImagenSobreNosFormSet(instance=sobreNos)
 
-    context = {
+    return render(request, 'sobreNosSubir.html', {
         'miFormularioSobreNos': form,
         'miFormularioImagenesSobreNos': formset,
         'sobreNos': sobreNos,
-    }
-    return render(request, 'actualizarSobreNos.html', context)
+        'emprendimiento': emprendimiento
+    })
 
 @login_required
-def detalleContacto(request, username):
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
+def menu(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    comidas_list = Comida.objects.filter(emprendimiento=emprendimiento).order_by('categoria')
+    comidas_por_categoria = {k: list(v) for k, v in groupby(comidas_list, key=attrgetter('categoria'))}
 
-    emprendedor = get_object_or_404(Emprendedor, user=request.user)
-    contacto = get_object_or_404(Contacto, emprendedor=emprendedor)
-
-    context = {
-        'contacto': contacto,
+    return render(request, 'menu.html', {
         'username': username,
-    }
-
-    return render(request, 'detalleContacto.html', context)
-
-def subirContacto(request, username):
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-    
-    emprendedor = request.user.emprendedor
-    try:
-        contacto = Contacto.objects.get(emprendedor=emprendedor)
-        # Redirige a la vista de detalles de Contacto.
-        return redirect('detalleContacto', username=username)
-    except Contacto.DoesNotExist:
-        if request.method == 'POST':
-            formulario_servicio = ContactoForm(request.POST, request.FILES)
-            formset = ImagenContactoFormSet(request.POST, request.FILES)
-            if formulario_servicio.is_valid() and formset.is_valid():
-                contacto = formulario_servicio.save(commit=False)
-                contacto.emprendedor = emprendedor
-                contacto.save()
-                instances = formset.save(commit=False)
-                for instance in instances:
-                    instance.contacto = contacto
-                    instance.save()
-                return redirect('detalleContacto', username=username)
-            else:
-                print(formulario_servicio.errors)
-        else:
-            formulario_servicio = ContactoForm()
-            formset = ImagenContactoFormSet()
-
-    return render(request, "subirContacto.html", {'miFormularioContacto': formulario_servicio, 'miFormularioImagenesContacto': formset})
+        'comidas_por_categoria': comidas_por_categoria,
+        'emprendimiento': emprendimiento
+    })
 
 @login_required
-def actualizarContacto(request, username):
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    emprendedor = get_object_or_404(Emprendedor, user=request.user)
-    contacto, created = Contacto.objects.get_or_create(emprendedor=emprendedor)
+def subirComida(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
 
     if request.method == 'POST':
-        form = ContactoForm(request.POST, request.FILES, instance=contacto)
-        formset = ImagenContactoFormSet(request.POST, request.FILES, instance=contacto)
+        form = ComidaForm(request.POST, request.FILES)
+        if form.is_valid():
+            comida = form.save(commit=False)
+            comida.emprendimiento = emprendimiento
+            comida.save()
+            return redirect('menu', username=username, nombreEmprendimiento=nombreEmprendimiento)
+    else:
+        # El campo 'emprendimiento' se establece automáticamente en la vista, oculto para el usuario.
+        form = ComidaForm(initial={'emprendimiento': emprendimiento})
+    
+    return render(request, 'comidaSubir.html', {
+        'username': username,
+        'miFormularioComida': form,
+        'emprendimiento': emprendimiento
+    })
+
+
+@login_required
+def detalleComida(request, username, nombreEmprendimiento, id):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    comida = get_object_or_404(Comida, id=id, emprendimiento=emprendimiento)
+    return render(request, 'comidaDetalle.html', {
+        'comida': comida,
+        'username': username,
+        'emprendimiento': emprendimiento,
+    })
+
+
+
+@login_required
+def actualizarComida(request, username, nombreEmprendimiento, id):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    comida = get_object_or_404(Comida, id=id, emprendimiento=emprendimiento)
+    
+    if request.method == 'POST':
+        form = ComidaForm(request.POST, request.FILES, instance=comida)
+        if form.is_valid():
+            form.save()
+            return redirect('menu', username=username, nombreEmprendimiento=nombreEmprendimiento)
+    else:
+        form = ComidaForm(instance=comida)
+    
+    return render(request, 'comidaActualizar.html', {
+        'username': username,
+        'miFormularioComida': form,
+        'comida': comida,
+        'emprendimiento': emprendimiento
+    })
+
+@login_required
+def galeria(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    eventos_list = Evento.objects.filter(emprendimiento=emprendimiento).order_by('categoria')
+    eventos_por_categoria = {k: list(v) for k, v in groupby(eventos_list, key=attrgetter('categoria'))}
+
+    return render(request, 'galeria.html', {
+        'username': username,
+        'eventos_por_categoria': eventos_por_categoria,
+        'emprendimiento': emprendimiento
+    })
+
+
+@login_required
+def subirEvento(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    if request.method == 'POST':
+        form = EventoForm(request.POST)
+        formset = ImagenEventoFormSet(request.POST, request.FILES)
+        if form.is_valid() and formset.is_valid():
+            evento = form.save(commit=False)
+            evento.emprendimiento = emprendimiento
+            evento.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.evento = evento
+                instance.save()
+            return redirect('galeria', username=username, nombreEmprendimiento=nombreEmprendimiento)
+    else:
+        form = EventoForm()
+        formset = ImagenEventoFormSet()
+    return render(request, 'eventoSubir.html', {
+        'miFormularioEvento': form,
+        'miFormularioImagenesEvento': formset,
+        'username': username,
+        'emprendimiento': emprendimiento
+    })
+
+
+@login_required
+def detalleEvento(request, username, nombreEmprendimiento, id):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
+    imagenes = evento.imagenesEvento.all()
+    
+    return render(request, 'eventoDetalle.html', {
+        'username': username,
+        'evento': evento,
+        'imagenes': imagenes,
+        'emprendimiento': emprendimiento
+    })
+
+@login_required
+def actualizarEvento(request, username, nombreEmprendimiento, id):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
+    formset = ImagenEventoFormSet(queryset=ImagenEvento.objects.filter(evento=evento))
+    
+    if request.method == 'POST':
+        form = EventoForm(request.POST, instance=evento)
+        formset = ImagenEventoFormSet(request.POST, request.FILES, queryset=ImagenEvento.objects.filter(evento=evento))
         if form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
-            return redirect('detalleContacto', username=username)
+            return redirect('galeria', username=username, nombreEmprendimiento=nombreEmprendimiento)
+    else:
+        form = EventoForm(instance=evento)
+    
+    return render(request, 'eventoActualizar.html', {
+        'username': username,
+        'miFormularioEvento': form,
+        'miFormularioImagenesEvento': formset,
+        'evento': evento,
+        'emprendimiento': emprendimiento
+    })
+
+@login_required
+def subirContacto(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        formset = ImagenContactoFormSet(request.POST, request.FILES)
+        if form.is_valid() and formset.is_valid():
+            contacto = form.save(commit=False)
+            contacto.emprendimiento = emprendimiento
+            contacto.save()
+            for form in formset:
+                imagen_contacto = form.save(commit=False)
+                imagen_contacto.contacto = contacto
+                imagen_contacto.save()
+            return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
+    else:
+        form = ContactoForm()
+        formset = ImagenContactoFormSet()
+    return render(request, 'contactoSubir.html', {
+        'miFormularioContacto': form,
+        'miFormularioImagenesContacto': formset,
+        'username': username,
+        'emprendimiento': emprendimiento,
+    })
+
+@login_required
+def detalleContacto(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    contacto = get_object_or_404(Contacto, emprendimiento=emprendimiento)
+    imagenes = contacto.imagenesContacto.all()
+    return render(request, 'contactoDetalle.html', {
+        'contacto': contacto,
+        'imagenes': imagenes,
+        'emprendimiento': emprendimiento,
+    })
+
+@login_required
+def actualizarContacto(request, username, nombreEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    contacto, created = Contacto.objects.get_or_create(emprendimiento=emprendimiento)
+    if request.method == 'POST':
+        form = ContactoForm(request.POST, instance=contacto)
+        formset = ImagenContactoFormSet(request.POST, request.FILES, instance=contacto)
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            for form in formset.deleted_forms:
+                if form.instance.pk:
+                    form.instance.delete()
+            formset.save()
+            return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
     else:
         form = ContactoForm(instance=contacto)
         formset = ImagenContactoFormSet(instance=contacto)
-
-    context = {
+    return render(request, 'contactoActualizar.html', {
         'miFormularioContacto': form,
         'miFormularioImagenesContacto': formset,
         'contacto': contacto,
-    }    
-
-    return render(request, 'actualizarContacto.html', context)
-
-# vista para la galeria
-def galeria(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-    # aqui se renderizaran los eventos de la base de datos de acuerdoal emprendedor
-    emprendedor = request.user.emprendedor
-    categoriasEvento = CategoriaEvento.objects.filter(emprendedor=emprendedor)
-    eventos = Evento.objects.filter(emprendedor=emprendedor)
-    context = {
-        # los elementos de la bbdd que se van a renderizar
-        "categoriasEvento": categoriasEvento,
-        "eventos": eventos,
-        "username": username,
-    }
-    return render(request, "galeria.html", context)
-
-# para visualizar mas detalles del evento que se ha elegido
-@login_required
-def detalleEvento(request, username, evento_id):
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-    
-    evento = get_object_or_404(Evento, id=evento_id, emprendedor=request.user.emprendedor)
-    imagenes = evento.imagenesEvento.all()  # Asumiendo que tienes un related_name='imagenes' en tu modelo ImagenEvento
-
-    context = {
-        'evento': evento,
-        'imagenes': imagenes,
-        'username': username,
-    }
-    return render(request, 'detalleEvento.html', context)
-
-# para los formularios para subir imagen 
-@login_required
-def subirEvento(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    emprendedor = get_object_or_404(Emprendedor, user=request.user)
-
-    if request.method == "POST":
-        formulario_evento = EventoForm(request.POST, request.FILES, emprendedor=emprendedor) 
-        formset = ImagenEventoFormSet(request.POST, request.FILES)
-
-        if formulario_evento.is_valid() and formset.is_valid():
-            evento = formulario_evento.save(commit=False)
-            evento.emprendedor = emprendedor
-            evento.save()
-            
-            # Guarda cada una de las imágenes asociadas con el evento
-            imagenes = formset.save(commit=False)
-            for imagen in imagenes:
-                imagen.evento = evento
-                imagen.save()
-
-            # Puedes redirigir a donde consideres adecuado después de guardar el evento y sus imágenes
-            return redirect('Galeria', username=username) 
-        else:
-            print(formulario_evento.errors, formset.errors)
-    else:
-        formulario_evento = EventoForm(emprendedor=emprendedor)
-        formset = ImagenEventoFormSet()
-
-    return render(request, "subirEvento.html", {'miFormularioEvento': formulario_evento, 'miFormularioImagenesEvento': formset})
-
-def subirCategoriaEvento(request, username):
-    # Asegúrate de que el usuario logueado es el mismo que el del URL.
-    if request.user.username != username:
-        return redirect('user_profile', username=request.user.username)
-
-    if request.method == "POST":
-        formulario_servicio = CategoriaEventoForm(request.POST, request.FILES) 
-        if formulario_servicio.is_valid():
-            categoriaEvento = formulario_servicio.save(commit=False)  # Guarda el formulario pero no el objeto
-            categoriaEvento.emprendedor = request.user.emprendedor  # Asigna el usuario logueado al objeto comida
-            categoriaEvento.save()  # Ahora guarda el objeto comida con el emprendedor asignado
-            return redirect('Galeria', username=username) 
-        else:
-            print(formulario_servicio.errors)
-    else:
-        formulario_servicio = CategoriaComidaForm()
-    return render(request, "subirCategoriaEvento.html", {'miFormularioCategoriaEvento': formulario_servicio})
-
-@login_required
-def eliminarCategoriaEvento(request, username, categoriaEvento_id):
-    # Solo permitir esta acción si el método es POST y el usuario está autenticado
-    if request.method == "POST" and request.user.username == username:
-        categoria = get_object_or_404(CategoriaEvento, id=categoriaEvento_id, emprendedor=request.user.emprendedor)
-        
-         # Eliminar las imágenes de los alimentos asociados a la categoría
-        eventos = Evento.objects.filter(categoriaEvento=categoria)
-        for evento in eventos:
-            if evento.imagen and os.path.isfile(evento.imagen.path):
-                os.remove(evento.imagen.path)
-            evento.delete()  # Eliminar la instancia de Comida
-
-        # Eliminar la imagen de la categoría
-        if categoria.imagen and os.path.isfile(categoria.imagen.path):
-            os.remove(categoria.imagen.path)
-        
-        categoria.delete()  # Eliminar la instancia de CategoriaComida
-        messages.success(request, "Categoría y eventos asociados eliminados correctamente.")
-        return redirect('Galeria', username=username)
-
-    else:
-        messages.error(request, "No se puede eliminar la categoría.")
-        return redirect('Galeria', username=username)
-
-@login_required
-def eliminarEvento(request, username, evento_id):
-
-    # Asegúrate de que el método es POST y que el usuario está autenticado
-    if request.method == "POST" and request.user.username == username:
-        evento = get_object_or_404(Evento, id=evento_id, emprendedor=request.user.emprendedor)
-        
-        # Obtener todas las imágenes asociadas con el evento
-        imagenes_evento = ImagenEvento.objects.filter(evento=evento)
-        for imagen in imagenes_evento:
-            # Eliminar la imagen del sistema de archivos
-            if imagen.imagen and os.path.isfile(imagen.imagen.path):
-                os.remove(imagen.imagen.path)
-            # Eliminar la instancia de imagen de la base de datos
-            imagen.delete()
-        
-        evento.delete()  # Elimina la instancia de Comida
-        
-        messages.success(request, "Evento y sus imágenes asociadas han sido eliminados.")
-        return redirect('Galeria', username=username)
-    else:
-        messages.error(request, "No se puede eliminar el evento.")
-        return redirect('Galeria', username=username)
-
-
-# vistas para serializaraa traves y consumo de la API
-class EmprendimientoViewSet(viewsets.ModelViewSet):
-    queryset = Emprendimiento.objects.all()
-    serializer_class = EmprendimientoSerializer
-
-class EmprendedorViewSet(viewsets.ModelViewSet):
-    queryset = Emprendedor.objects.all()
-    serializer_class = EmprendedorSerializer
+        'emprendimiento': emprendimiento,
+    })

@@ -1,70 +1,21 @@
-<!-- se indic que va a heredar de base.html -->
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-<!-- se carga lo que esta en la carpeta static -->
-{% load static %}  
-{% load crispy_forms_tags %}
-<!-- aqui va el contenido cambiante -->
 {% block content %}
+<h2>Galería de Eventos</h2>
+<a href="{% url 'eventoSubir' username=username nombreEmprendimiento=emprendimiento.nombre %}">Subir nuevo evento</a>
 
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirEvento' username=user.username %}" style="color: white;">Agregar evento</a></button>
-</div>
-
-<div>
-    <button type="button" class="btn btn-primary"><a href="{% url 'SubirCategoriaEvento' username=user.username %}" style="color: aliceblue;">Agregar categoria</a></button>
-</div>
-
-<div class="row">
-    {% for categoriaEvento in categoriasEvento %}
-    <div class="col-md-4">
-        <div class="card border-primary mb-3" style="max-width: 20rem;">
-            <div class="card-header">{{categoriaEvento.nombre}}</div>
-            <div class="card-body">
-                <img src="{{categoriaEvento.imagen.url}}" class="card-img-top">
-                <!-- se usa formulario en produccion para eliminar la categoria -->
-                <!-- se usa un formulario por custiones d e seguridad por ataques csrf -->
-                <form method="post" action="{% url 'eliminarCategoriaEvento' username=username categoriaEvento_id=categoriaEvento.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar esta categoría y todos los eventos asociados?');">
-                        Eliminar Categoría
-                    </button>
-                </form>
-
-            </div>
-        </div>
-    </div>
-    
-    {% endfor %}
-</div>
-
-<div></div>
-
-
-<div class="row">
-    <!-- aqui se hace un for para cada servicio -->
+{% for categoria, eventos in eventos_por_categoria.items %}
+  <h3>{{ categoria }}</h3>
+  <ul>
     {% for evento in eventos %}
-
-    <div class="col-md-4">
-        <div class="card border-primary mb-3" style="max-width: 20rem;">
-            <a href="{% url 'detalleEvento' username=user.username evento_id=evento.id %}">
-                {{ evento.titulo }}
-            </a>
-            <div class="card-body">
-                <img src="{{evento.imagen.url}}" class="card-img-top">
-            
-                <!-- formulario para eliminar una comida -->
-                <form method="post" action="{% url 'eliminarEvento' username=username evento_id=evento.id %}">
-                    {% csrf_token %}
-                    <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar este evento?');">
-                        Eliminar evento
-                    </button>
-                </form>
-            
-            </div>
-        </div>
-    </div>
+      <li>
+        <a href="{% url 'eventoDetalle' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre id=evento.id %}">{{ evento.titulo }}</a>
+        - {{ evento.precio }} - Disponibles: {{ evento.disponibles }}
+      </li>
     {% endfor %}
-</div>
+  </ul>
+{% empty %}
+  <p>No hay eventos en la galería aún.</p>
+{% endfor %}
 
 {% endblock %}

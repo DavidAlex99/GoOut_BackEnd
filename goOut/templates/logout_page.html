@@ -1,0 +1,16 @@
+<!-- logout_page.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sesión Finalizada</title>
+    <link href="{% static 'css/estilo.css' %}" rel="stylesheet">
+</head>
+<body>
+    <h1>Has cerrado sesión exitosamente</h1>
+    <div>
+        <a href="{% url 'login' %}" class="btn btn-primary">Iniciar Sesión</a>
+        <a href="{% url 'register' %}" class="btn btn-secondary">Registrarse</a>
+    </div>
+</body>
+</html>

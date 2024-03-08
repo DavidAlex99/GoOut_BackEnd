@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Detalle de la Comida</h1>
+    <p><strong>Nombre:</strong> {{ comida.nombre }}</p>
+    <p><strong>Precio:</strong> {{ comida.precio }}</p>
+    <p><strong>Descripción:</strong> {{ comida.descripcion }}</p>
+    <p><strong>Categoría:</strong> {{ comida.get_categoria_display }}</p>
+    {% if comida.imagen %}
+        <img src="{{ comida.imagen.url }}" alt="Imagen de {{ comida.nombre }}" width="300">
+    {% endif %}
+    <hr>
+    <a href="{% url 'menu' username=username nombreEmprendimiento=emprendimiento.nombre %}">Volver al menú</a>
+    <a href="{% url 'comidaActualizar' username=username nombreEmprendimiento=emprendimiento.nombre id=comida.id %}">Actualizar Comida</a>
+</div>
+{% endblock %}

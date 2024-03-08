@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Detalle del Evento: {{ evento.titulo }}</h2>
+
+<p>{{ evento.descripcion }}</p>
+<p>Precio: {{ evento.precio }}</p>
+<p>Disponibles: {{ evento.disponibles }}</p>
+
+<!-- Muestra las imágenes del evento -->
+{% for imagen in imagenes %}
+  <img src="{{ imagen.imagen.url }}" alt="Imagen del evento" />
+{% endfor %}
+
+<a href="{% url 'eventoActualizar' username=username nombreEmprendimiento=emprendimiento.nombre id=evento.id %}">Actualizar evento</a>
+<a href="{% url 'galeria' username=username nombreEmprendimiento=emprendimiento.nombre %}">Volver a la Galería</a>
+{% endblock %}

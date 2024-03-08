@@ -30,29 +30,47 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Home' %}">Home</a></li>
                         
-                        {% if request.user.is_authenticated %}
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'actualizarEmprendimiento' username=user.username %}">Actualizar mi emprendimiento</a></li>
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'subirSobreNos' username=user.username %}">Acerca de nosotros</a></li>
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Menu' username=user.username %}">Menu</a></li>
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'Galeria' username=user.username %}">Evento</a></li>
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'subirContacto' username=user.username %}">Contacto</a></li>
                         
-                            <li class="nav-item">
-                                <form method="post" action="{% url 'logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Cerrar sesión</button>
-                                </form>
+                        {% if request.user.is_authenticated and emprendimiento %}
+                            <li class="nav-item px-lg-4">
+                                <a class="nav-link text-uppercase" href="{% url 'emprendimientoHome' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Home</a>
                             </li>
 
-                            
+                            <!-- para la sección de sobreNos -->
+                            {% with sobreNos_exists=emprendimiento.sobrenos_set.exists %}
+                                <li class="nav-item px-lg-4">
+                                {% if sobreNos_exists %}
+                                    <a class="nav-link text-uppercase" href="{% url 'sobreNosDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Ver Sobre Nosotros</a>
+                                {% else %}
+                                    <a class="nav-link text-uppercase" href="{% url 'sobreNosSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Subir Sobre Nos</a>
+                                {% endif %}
+                                </li>
+                            {% endwith %}
 
-                            {% else %}
-                            <!-- Enlaces para usuarios no autenticados -->
-                                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'login' %}">Iniciar Sesión</a></li>
-                                <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'register' %}">Registrarse</a></li>
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'menu' username=user.username nombreEmprendimiento=emprendimiento.nombre %}">Menu</a></li>
                             
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'galeria' username=user.username nombreEmprendimiento=emprendimiento.nombre %}">Eventos</a></li>  
+                            
+                            {% with contacto_exists=emprendimiento.contacto_set.exists %}
+                                <li class="nav-item px-lg-4">
+                                {% if sobreNos_exists %}
+                                    <a class="nav-link text-uppercase" href="{% url 'contactoDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Ver Contacto</a>
+                                {% else %}
+                                    <a class="nav-link text-uppercase" href="{% url 'contactoSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Subir Contacto</a>
+                                {% endif %}
+                                </li>
+                            {% endwith %}
+
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Cerrar sesión</button>
+                            </form>
+
+                        {% else %}
+                            <!-- Enlaces para usuarios no autenticados -->
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'login' %}">Iniciar Sesión</a></li>
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'register' %}">Registrarse</a></li>
                         {% endif %}
                         
                     

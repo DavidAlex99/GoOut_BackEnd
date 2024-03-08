@@ -1,0 +1,20 @@
+<!-- emprendimientoHome.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Bienvenido al Emprendimiento: {{ emprendimiento.nombre }}</h1>
+  
+  <p>{{ emprendimiento.descripcion }}</p>
+  
+  <!-- Otras informaciones sobre el emprendimiento -->
+  
+
+
+  <!-- Si quieres agregar la opción de crear otro emprendimiento -->
+
+
+  <!-- Agregar más enlaces o botones para diferentes acciones -->
+  <a href="{% url 'emprendimientoListar' username=request.user.username %}" class="btn btn-secondary">Volver a Mis Emprendimientos</a>
+
+
+{% endblock %}
