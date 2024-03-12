@@ -23,8 +23,8 @@ from rest_framework import viewsets
 from .serializers import EmprendimientoSerializer, ComidaSerializer, EventoSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ComidaFilter, EventoFilter
-
-
+from rest_framework.response import Response    
+from rest_framework.decorators import api_view
 # fin para serializar  traves de la API
 
 from django.forms import inlineformset_factory
@@ -430,3 +430,13 @@ class EventoViewSet(viewsets.ModelViewSet):
     serializer_class = EventoSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = EventoFilter
+
+# para que al selecccionar un evento me lleve a su emprendimiento
+@api_view(['GET'])
+def get_emprendimiento(request, pk):
+    try:
+        emprendimiento = Emprendimiento.objects.get(pk=pk)
+        serializer = EmprendimientoSerializer(emprendimiento)
+        return Response(serializer.data)
+    except Emprendimiento.DoesNotExist:
+        return Response(status=404)

@@ -7,11 +7,13 @@ class ImagenEventoSerializer(serializers.ModelSerializer):
         fields = ['imagen', 'created', 'updated']
 
 class EventoSerializer(serializers.ModelSerializer):
+    emprendimiento_id = serializers.ReadOnlyField(source='emprendimiento.id')  # Asegúrate de que 'emprendimiento' sea el nombre correcto de la relación
+    emprendimiento_nombre = serializers.ReadOnlyField(source='emprendimiento.nombre')
     imagenesEvento = ImagenEventoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Evento
-        fields = ['titulo', 'descripcion', 'categoria', 'disponibles', 'precio', 'imagenesEvento', 'created', 'updated']
+        fields = ['titulo', 'descripcion', 'categoria', 'disponibles', 'precio', 'imagenesEvento', 'created', 'updated', 'emprendimiento_id', 'emprendimiento_nombre']
 
 class ImagenContactoSerializer(serializers.ModelSerializer):
     class Meta:

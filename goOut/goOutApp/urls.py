@@ -62,6 +62,7 @@ urlpatterns = [
 
     #url para consumo de API
     path('', include(router.urls)),
+    path('emprendimientos/<int:pk>/', views.get_emprendimiento),
 ]
 
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
