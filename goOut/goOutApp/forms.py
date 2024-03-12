@@ -43,11 +43,12 @@ class EmprendedorRegisterForm(UserCreationForm):
 class EmprendimientoForm(forms.ModelForm):
     class Meta:
         model = Emprendimiento
-        fields = ['nombre', 'descripcion', 'categoria']
+        fields = ['nombre', 'descripcion', 'categoria', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
             'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
 class EventoForm(forms.ModelForm):

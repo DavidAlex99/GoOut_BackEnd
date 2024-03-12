@@ -25,6 +25,12 @@ from django.conf.urls.static import static
 from .views import user_profile, CustomLoginView, register
 from django.contrib.auth.views import LoginView, LogoutView
 # Imports para poder consumir las APIS
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'emprendimientos', views.EmprendimientoViewSet)
+
 
 urlpatterns = [
     # para el inciio de sesion
@@ -52,6 +58,9 @@ urlpatterns = [
     path('<str:username>/<str:nombreEmprendimiento>/subirContacto/', views.subirContacto, name='contactoSubir'),
     path('<str:username>/<str:nombreEmprendimiento>/contacto/', views.detalleContacto, name='contactoDetalle'),
     path('<str:username>/<str:nombreEmprendimiento>/contacto/actualizar/', views.actualizarContacto, name='contactoActualizar'),
+
+    #url para consumo de API
+    path('', include(router.urls)),
 ]
 
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

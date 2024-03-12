@@ -9,4 +9,11 @@
         <button type="submit" class="btn btn-success">Guardar Emprendimiento</button>
     </form>
 </div>
+
+{% if miFormularioCrearEmprendimiento.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ miFormularioCrearEmprendimiento.errors }}
+    </div>
+{% endif %}
+
 {% endblock %}

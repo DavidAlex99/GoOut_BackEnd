@@ -54,7 +54,7 @@
                             
                             {% with contacto_exists=emprendimiento.contacto_set.exists %}
                                 <li class="nav-item px-lg-4">
-                                {% if sobreNos_exists %}
+                                {% if contacto_exists %}
                                     <a class="nav-link text-uppercase" href="{% url 'contactoDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Ver Contacto</a>
                                 {% else %}
                                     <a class="nav-link text-uppercase" href="{% url 'contactoSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Subir Contacto</a>

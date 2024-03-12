@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Detalles de Comida</h2>
-    <p><strong>Nombre:</strong> {{ comida.nombre }}</p>
-    <p><strong>Precio:</strong> {{ comida.precio }}</p>
-    <p><strong>Descripción:</strong> {{ comida.descripcion }}</p>
-    <p><strong>Categoría:</strong> {{ comida.get_categoria_display }}</p>
-    <img src="{{ comida.imagen.url }}" alt="Imagen de comida" style="width: 200px; height: auto;">
-    <br>
-    <a href="{% url 'comidaActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre comida_id=comida.id %}" class="btn btn-secondary mt-3">Editar</a>
+<div class="container">
+    <h2>Sobre Nosotros</h2>
+    <p>{{ sobreNos.descripcion }}</p>
+    <div>
+        {% for imagen in imagenes %}
+            <img src="{{ imagen.imagen.url }}" alt="Imagen" style="width: 100px; height: auto;">
+        {% endfor %}
+    </div>
+    <a href="{% url 'sobreNosActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre %}" class="btn btn-secondary">Actualizar</a>
 </div>
 {% endblock %}

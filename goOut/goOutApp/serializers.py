@@ -1,35 +1,53 @@
 from rest_framework import serializers
-from .models import Emprendimiento, Emprendedor, Evento, Comida
+from .models import Emprendimiento, Emprendedor, Comida, Evento, ImagenEvento, Contacto, ImagenContacto, SobreNos, ImagenSobreNos
+
+class ImagenEventoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagenEvento
+        fields = ['imagen', 'created', 'updated']
 
 class EventoSerializer(serializers.ModelSerializer):
+    imagenesEvento = ImagenEventoSerializer(many=True, read_only=True)
+
     class Meta:
         model = Evento
-        fields = ['id', 'titulo', 'descripcion', 'categoriaEvento', 'created', 'updated']
+        fields = ['titulo', 'descripcion', 'categoria', 'disponibles', 'precio', 'imagenesEvento', 'created', 'updated']
+
+class ImagenContactoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagenContacto
+        fields = ['imagen', 'created', 'updated']
+
+class ContactoSerializer(serializers.ModelSerializer):
+    imagenesContacto = ImagenContactoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Contacto
+        fields = ['descripcion', 'direccion', 'correo', 'telefono', 'latitud', 'longitud', 'imagenesContacto', 'created', 'updated']
+
+class ImagenSobreNosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagenSobreNos
+        fields = ['imagen', 'created', 'updated']
+
+class SobreNosSerializer(serializers.ModelSerializer):
+    imagenesSobreNos = ImagenSobreNosSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SobreNos
+        fields = ['descripcion', 'imagenesSobreNos', 'created', 'updated']
 
 class ComidaSerializer(serializers.ModelSerializer):
-    imagen = serializers.SerializerMethodField('get_imagen_url')
     class Meta:
         model = Comida
-        fields = ['id', 'nombre', 'precio', 'descripcion','imagen', 'categoriaComida', 'created', 'updated']
-
-    def get_imagen_url(self, obj):
-        if obj.imagen and hasattr(obj.imagen, 'url'):
-            return self.context['request'].build_absolute_uri(obj.imagen.url)
-        else:
-            return None
-
-# Primero, serializa el modelo Emprendedor si aún no lo has hecho
-class EmprendedorSerializer(serializers.ModelSerializer):
-    eventos = EventoSerializer(many=True, read_only=True, source='evento_set')
-    comidas = ComidaSerializer(many=True, read_only=True, source='comida_set')
-    class Meta:
-        model = Emprendedor
-        fields = '__all__'  # Ajusta los campos según necesites
+        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'categoria', 'created', 'updated']
 
 class EmprendimientoSerializer(serializers.ModelSerializer):
-    emprendedor = EmprendedorSerializer(read_only=True)
-    
+    eventos = EventoSerializer(source='evento_set', many=True, read_only=True)
+    contacto = ContactoSerializer(read_only=True)
+    sobreNos = SobreNosSerializer(read_only=True)
+    comidas = ComidaSerializer(source='comida_set', many=True, read_only=True)  # No es necesario usar source='comida_set' si ya está usando el nombre predeterminado
+
     class Meta:
         model = Emprendimiento
-        fields = ['id', 'nombre', 'descripcion', 'emprendedor', 'created', 'updated']
-
+        fields = ['nombre', 'descripcion', 'categoria', 'imagen', 'eventos', 'contacto', 'sobreNos', 'comidas', 'created', 'updated']

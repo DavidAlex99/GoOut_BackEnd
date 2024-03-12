@@ -20,7 +20,7 @@ from operator import attrgetter
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
-from .serializers import EmprendimientoSerializer, EmprendedorSerializer
+from .serializers import EmprendimientoSerializer
 # fin para serializar  traves de la API
 
 from django.forms import inlineformset_factory
@@ -80,7 +80,7 @@ def emprendimientoListar(request, username):
 @login_required
 def crearEmprendimiento(request, username):
     if request.method == 'POST':
-        form = EmprendimientoForm(request.POST)
+        form = EmprendimientoForm(request.POST, request.FILES)
         if form.is_valid():
             emprendimiento = form.save(commit=False)
             emprendimiento.emprendedor = request.user.emprendedor  # Asegúrate de que esta relación exista
@@ -405,3 +405,8 @@ def actualizarContacto(request, username, nombreEmprendimiento):
         'contacto': contacto,
         'emprendimiento': emprendimiento,
     })
+
+# para serializar los datos en el api
+class EmprendimientoViewSet(viewsets.ModelViewSet):
+    queryset = Emprendimiento.objects.all()
+    serializer_class = EmprendimientoSerializer

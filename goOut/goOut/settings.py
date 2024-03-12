@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-zqa-xl2-abcd8ud(282^k$cb@+p1*7kq4$x7vad+ecz$eezrj+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['192.168.100.6', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -86,7 +85,7 @@ WSGI_APPLICATION = 'goOut.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'goOut2',
+        'NAME': 'goOut',
         'USER': 'postgres',       
         'POST': 5432,
         'HOST': '127.0.0.1',

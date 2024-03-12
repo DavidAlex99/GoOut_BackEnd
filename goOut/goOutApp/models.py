@@ -26,6 +26,7 @@ class Emprendimiento(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
     emprendedor = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='imagen_emprendimiento')
     categoria = models.CharField(max_length=10, choices=CATEGORIAS, default='OTRO')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
@@ -117,7 +118,7 @@ class Contacto(models.Model):
     # campos que van a servir para el api google maps
     latitud = models.FloatField(null=True, blank=True)  # Nuevo campo para latitud
     longitud = models.FloatField(null=True, blank=True)  # Nuevo campo para longitud
-    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
+    emprendimiento = models.OneToOneField(Emprendimiento, related_name='contacto', on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
@@ -131,7 +132,7 @@ class ImagenContacto(models.Model):
 
 class SobreNos(models.Model):
     descripcion = models.TextField()
-    emprendimiento = models.ForeignKey(Emprendimiento, on_delete=models.CASCADE)
+    emprendimiento = models.OneToOneField(Emprendimiento, related_name='sobreNos', on_delete=models.CASCADE)
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
 
