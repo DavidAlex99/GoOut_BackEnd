@@ -20,7 +20,11 @@ from operator import attrgetter
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
-from .serializers import EmprendimientoSerializer
+from .serializers import EmprendimientoSerializer, ComidaSerializer, EventoSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ComidaFilter, EventoFilter
+
+
 # fin para serializar  traves de la API
 
 from django.forms import inlineformset_factory
@@ -406,7 +410,23 @@ def actualizarContacto(request, username, nombreEmprendimiento):
         'emprendimiento': emprendimiento,
     })
 
-# para serializar los datos en el api
+# para serializar los datos en el api y que permita el filtro de emprendimiento
 class EmprendimientoViewSet(viewsets.ModelViewSet):
     queryset = Emprendimiento.objects.all()
     serializer_class = EmprendimientoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['categoria', 'emprendedor__nombre']
+
+# para que permita el filtro de comidas, la logica de fltro esta en filters,py
+class ComidaViewSet(viewsets.ModelViewSet):
+    queryset = Comida.objects.all()
+    serializer_class = ComidaSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ComidaFilter
+
+# para que permita el filtro de eventos, la logica de fltro esta en filters,py
+class EventoViewSet(viewsets.ModelViewSet):
+    queryset = Evento.objects.all()
+    serializer_class = EventoSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = EventoFilter

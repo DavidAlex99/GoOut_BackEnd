@@ -30,7 +30,8 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'emprendimientos', views.EmprendimientoViewSet)
-
+router.register(r'comidas', views.ComidaViewSet) 
+router.register(r'eventos', views.EventoViewSet) 
 
 urlpatterns = [
     # para el inciio de sesion
