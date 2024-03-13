@@ -40,9 +40,11 @@ class SobreNosSerializer(serializers.ModelSerializer):
         fields = ['descripcion', 'imagenesSobreNos', 'created', 'updated']
 
 class ComidaSerializer(serializers.ModelSerializer):
+    emprendimiento_id = serializers.ReadOnlyField(source='emprendimiento.id')
+    
     class Meta:
         model = Comida
-        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'categoria', 'created', 'updated']
+        fields = ['nombre', 'precio', 'descripcion', 'imagen', 'categoria', 'created', 'updated', 'emprendimiento_id']
 
 class EmprendimientoSerializer(serializers.ModelSerializer):
     eventos = EventoSerializer(source='evento_set', many=True, read_only=True)
