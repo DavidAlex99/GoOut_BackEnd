@@ -28,10 +28,16 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+
 router = DefaultRouter()
 router.register(r'emprendimientos', views.EmprendimientoViewSet)
 router.register(r'comidas', views.ComidaViewSet) 
 router.register(r'eventos', views.EventoViewSet) 
+# url token autenticacion registro
+
 
 urlpatterns = [
     # para el inciio de sesion
@@ -63,6 +69,11 @@ urlpatterns = [
     #url para consumo de API
     path('', include(router.urls)),
     path('emprendimientos/<int:pk>/', views.get_emprendimiento),
+    # paso 3: registro e inicio de sesion para este caso desde flutter
+    # url para la autenticacion de clientes para recibir un token
+    path('register/', views.register, name='register'),
+    path('login/', views.login_view, name='login'),
+
 ]
 
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

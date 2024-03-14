@@ -40,10 +40,20 @@ INSTALLED_APPS = [
     'goOutApp',
     'crispy_forms', 
     'crispy_bootstrap4',
-    'rest_framework',
+    
+    'rest_framework',   
+    'rest_framework.authtoken',
+
     'corsheaders',
     'django_filters',
+
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'dj_rest_auth.registration',
 ]
+# paso 3: para el registro
+SITE_ID = 1
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -54,7 +64,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+    'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'goOut.urls'
@@ -113,6 +124,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# paso 4: registro e inicio de sesion para este caso desde flutter
+# para el manejo de auenticacion desde flutter en este caso por medio de un token
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
+#  paso 4: configuracion de email para envio de email cuando se realiza un post
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+EMAIL_HOST_USER="a20051999rivera@gmail.com"
+EMAIL_HOST_PASSWORD="dwog johc tord udca"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

@@ -4,6 +4,15 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
+
+class Cliente(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # Aquí puedes añadir más campos específicos del cliente
+    intereses = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.user.username
+
 # este modelo es el que presetara como uno de los tantos emprendimientos
 class Emprendedor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -61,6 +70,15 @@ class ImagenEvento(models.Model):
     def __str__(self):
         return f"Imagen de {self.evento.titulo}"
     
+# para laas reservas de los
+class Reserva(models.Model):
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='reservas')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    cantidad = models.IntegerField()
+    # Puedes añadir más campos según sea necesario
+
+    def __str__(self):
+        return f"Reserva de {self.usuario.username} para {self.evento.titulo}"    
 # fin subclases de galeria 
 
 class Galeria(models.Model):

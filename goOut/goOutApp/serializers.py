@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Emprendimiento, Emprendedor, Comida, Evento, ImagenEvento, Contacto, ImagenContacto, SobreNos, ImagenSobreNos
+from .models import Emprendimiento, Emprendedor, Comida, Evento, ImagenEvento, Contacto, ImagenContacto, SobreNos, ImagenSobreNos, Cliente
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 class ImagenEventoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,3 +58,20 @@ class EmprendimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Emprendimiento
         fields = ['nombre', 'descripcion', 'categoria', 'imagen', 'eventos', 'contacto', 'sobreNos', 'comidas', 'created', 'updated']
+
+# paso 2: registro e inicio de sesion para este caso desde flutter
+# serializador para el registro de usuarios e inicio de sesion
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user

@@ -20,14 +20,26 @@ from operator import attrgetter
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
-from .serializers import EmprendimientoSerializer, ComidaSerializer, EventoSerializer
+from .serializers import EmprendimientoSerializer, ComidaSerializer, EventoSerializer, UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ComidaFilter, EventoFilter
 from rest_framework.response import Response    
 from rest_framework.decorators import api_view
+
+# para el registro de usuario
+from rest_framework.authtoken.models import Token
+from rest_framework import status
+from django.contrib.auth import authenticate
+from rest_framework import generics, permissions, status
+from rest_framework.views import APIView
+# fin para el registro de usuario
 # fin para serializar  traves de la API
 
+
+
 from django.forms import inlineformset_factory
+
+
 
 
 # La vista personalizada para el inicio de sesión
@@ -440,3 +452,26 @@ def get_emprendimiento(request, pk):
         return Response(serializer.data)
     except Emprendimiento.DoesNotExist:
         return Response(status=404)
+
+# paso 1: registro e inicio de sesion para este caso desde flutter
+# Vista para registro
+@api_view(['POST'])
+def register(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    print(serializer.errors)  # Agrega esta línea para depurar
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def login_view(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
