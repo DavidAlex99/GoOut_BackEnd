@@ -126,10 +126,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # paso 4: registro e inicio de sesion para este caso desde flutter
 # para el manejo de auenticacion desde flutter en este caso por medio de un token
+
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 }
 
 

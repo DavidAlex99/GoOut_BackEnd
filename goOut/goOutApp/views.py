@@ -463,7 +463,8 @@ def register(request):
         telefono = request.data.get('telefono', None)
         if telefono:
             Cliente.objects.create(user=user, telefono=telefono)
-        return Response({'user_id': user.id}, status=status.HTTP_201_CREATED)
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_201_CREATED)  
     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -475,6 +476,7 @@ def login_view(request):
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
+        token, _ = Token.objects.get_or_create(user=user)
         return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
     else:
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)

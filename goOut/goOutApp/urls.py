@@ -24,12 +24,13 @@ from django.conf.urls.static import static
 # para el inicio de sesion
 from .views import user_profile, CustomLoginView, register
 from django.contrib.auth.views import LoginView, LogoutView
+from rest_framework.authtoken.views import obtain_auth_token
 # Imports para poder consumir las APIS
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 
 router = DefaultRouter()
@@ -71,8 +72,8 @@ urlpatterns = [
     path('emprendimientos/<int:pk>/', views.get_emprendimiento),
     # paso 3: registro e inicio de sesion para este caso desde flutter
     # url para la autenticacion de clientes para recibir un token
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('register/', views.register, name='register'),
-    path('login/', views.login_view, name='login'),
 
 ]
 
