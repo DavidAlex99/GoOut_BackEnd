@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .forms import EventoForm, ImagenEventoFormSet, ComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm, ImagenSobreNosForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, ImagenEvento, Comida, Emprendimiento, Emprendedor, ImagenContacto, Contacto, SobreNos, ImagenSobreNos
+from .models import Evento, ImagenEvento, Comida, Emprendimiento, Emprendedor, ImagenContacto, Contacto, SobreNos, ImagenSobreNos, Cliente
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -457,12 +457,15 @@ def get_emprendimiento(request, pk):
 # Vista para registro
 @api_view(['POST'])
 def register(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    print(serializer.errors)  # Agrega esta línea para depurar
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    user_serializer = UserSerializer(data=request.data)
+    if user_serializer.is_valid():
+        user = user_serializer.save()
+        telefono = request.data.get('telefono', None)
+        if telefono:
+            Cliente.objects.create(user=user, telefono=telefono)
+        return Response({'user_id': user.id}, status=status.HTTP_201_CREATED)
+    return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['POST'])

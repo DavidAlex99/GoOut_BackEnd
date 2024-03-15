@@ -5,13 +5,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 
-class Cliente(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # Aquí puedes añadir más campos específicos del cliente
-    intereses = models.TextField(blank=True)
 
-    def __str__(self):
-        return self.user.username
 
 # este modelo es el que presetara como uno de los tantos emprendimientos
 class Emprendedor(models.Model):
@@ -39,6 +33,14 @@ class Emprendimiento(models.Model):
     categoria = models.CharField(max_length=10, choices=CATEGORIAS, default='OTRO')
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now_add=True)
+
+class Cliente(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    telefono = models.TextField(max_length=20)
+    #favoritos = models.ManyToManyField(Emprendimiento, related_name='clientes_favoritos', blank=True)
+
+    def __str__(self):
+        return self.user.username
 
 #subclases de Galeria
 class Evento(models.Model):
