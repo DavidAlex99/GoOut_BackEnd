@@ -55,14 +55,14 @@ urlpatterns = [
     
     path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/menu/', views.menu, name='menu'),
     path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/menu/subirComida/', views.subirComida, name='comidaSubir'),
-    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/menu/<int:id>/', views.detalleComida, name='comidaDetalle'),
-    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/menu/<int:id>/actualizarComida/', views.actualizarComida, name='comidaActualizar'),
+    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/menu/<int:idComida>/', views.detalleComida, name='comidaDetalle'),
+    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/menu/<int:idComida>/actualizarComida/', views.actualizarComida, name='comidaActualizar'),
 
     path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/', views.galeria, name='galeria'),
     path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/subirEvento/', views.subirEvento, name='eventoSubir'),
-    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/<int:id>/', views.detalleEvento, name='eventoDetalle'),
-    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/<int:id>/actualizarEvento/', views.actualizarEvento, name='eventoActualizar'),
-    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/<int:id>/reservas/', views.verReservasEvento, name='eventoReservas'),
+    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/<int:idEvento>/', views.detalleEvento, name='eventoDetalle'),
+    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/<int:idEvento>/actualizarEvento/', views.actualizarEvento, name='eventoActualizar'),
+    path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/galeria/<int:idEvento>/reservas/', views.verReservasEvento, name='eventoReservas'),
 
     path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/subirContacto/', views.subirContacto, name='contactoSubir'),
     path('<str:username>/<str:nombreEmprendimiento>/<int:idEmprendimiento>/contacto/', views.detalleContacto, name='contactoDetalle'),

@@ -117,13 +117,17 @@ def crearEmprendimiento(request, username):
 # vista agregada
 def emprendimientoHome(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
-    
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
+    print("SobreNos exists:", sobreNos_exists)
     # Ejemplo de obtención de productos relacionados con el emprendimiento
     #productos = Producto.objects.filter(emprendimiento=emprendimiento)
 
     return render(request, 'emprendimientoHome.html', {
         'username': username,
         'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
         #'productos': productos,  # Añadir productos al contexto
     })
 
@@ -131,7 +135,13 @@ def emprendimientoHome(request, username, nombreEmprendimiento, idEmprendimiento
 @login_required
 def detalleEmprendimiento(request, username, emprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
-    return render(request, 'emprendimientoDetalle.html', {'emprendimiento': emprendimiento})
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
+    return render(request, 'emprendimientoDetalle.html', {
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
+    })
 
 
 # para agregar un emprendimiento despues de registrarse o iniciar sesion
@@ -159,6 +169,8 @@ def emprendimientoAgregar(request, username):
 @login_required
 def subirSobreNos(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    contacto_exists = hasattr(emprendimiento, 'contacto')
+
     if request.method == 'POST':
         form = SobreNosForm(request.POST)
         formset = ImagenSobreNosFormSet(request.POST, request.FILES)
@@ -179,6 +191,7 @@ def subirSobreNos(request, username, nombreEmprendimiento, idEmprendimiento):
         'miFormularioImagenesSobreNos': formset,
         'emprendimiento': emprendimiento,
         'username': username,
+        'contacto_exists': contacto_exists,
     })
 
 
@@ -187,10 +200,12 @@ def detalleSobreNos(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     sobreNos = get_object_or_404(SobreNos, emprendimiento=emprendimiento)
     imagenes = sobreNos.imagenesSobreNos.all()
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     return render(request, 'sobreNosDetalle.html', {
         'sobreNos': sobreNos,
         'imagenes': imagenes,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
@@ -199,6 +214,8 @@ def actualizarSobreNos(request, username, nombreEmprendimiento, idEmprendimiento
     sobreNos, created = SobreNos.objects.get_or_create(emprendimiento=emprendimiento)
 
     ImagenSobreNosFormSet = inlineformset_factory(SobreNos, ImagenSobreNos, form=ImagenSobreNosForm, extra=4, can_delete=True)
+
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     
     if request.method == 'POST':
         form = SobreNosForm(request.POST, instance=sobreNos)
@@ -223,7 +240,8 @@ def actualizarSobreNos(request, username, nombreEmprendimiento, idEmprendimiento
         'miFormularioSobreNos': form,
         'miFormularioImagenesSobreNos': formset,
         'sobreNos': sobreNos,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
@@ -231,16 +249,22 @@ def menu(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     comidas_list = Comida.objects.filter(emprendimiento=emprendimiento).order_by('categoria')
     comidas_por_categoria = {k: list(v) for k, v in groupby(comidas_list, key=attrgetter('categoria'))}
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
 
     return render(request, 'menu.html', {
         'username': username,
         'comidas_por_categoria': comidas_por_categoria,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
 def subirComida(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
 
     if request.method == 'POST':
         form = ComidaForm(request.POST, request.FILES)
@@ -256,7 +280,9 @@ def subirComida(request, username, nombreEmprendimiento, idEmprendimiento):
     return render(request, 'comidaSubir.html', {
         'username': username,
         'miFormularioComida': form,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 
@@ -264,10 +290,14 @@ def subirComida(request, username, nombreEmprendimiento, idEmprendimiento):
 def detalleComida(request, username, nombreEmprendimiento, idEmprendimiento, idComida):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     comida = get_object_or_404(Comida, id=idComida, emprendimiento=emprendimiento)
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     return render(request, 'comidaDetalle.html', {
         'comida': comida,
         'username': username,
         'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 
@@ -276,6 +306,8 @@ def detalleComida(request, username, nombreEmprendimiento, idEmprendimiento, idC
 def actualizarComida(request, username, nombreEmprendimiento, idEmprendimiento, idComida):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     comida = get_object_or_404(Comida, id=idComida, emprendimiento=emprendimiento)
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     
     if request.method == 'POST':
         form = ComidaForm(request.POST, request.FILES, instance=comida)
@@ -289,7 +321,9 @@ def actualizarComida(request, username, nombreEmprendimiento, idEmprendimiento, 
         'username': username,
         'miFormularioComida': form,
         'comida': comida,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
@@ -297,17 +331,23 @@ def galeria(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     eventos_list = Evento.objects.filter(emprendimiento=emprendimiento).order_by('categoria')
     eventos_por_categoria = {k: list(v) for k, v in groupby(eventos_list, key=attrgetter('categoria'))}
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
 
     return render(request, 'galeria.html', {
         'username': username,
         'eventos_por_categoria': eventos_por_categoria,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 
 @login_required
 def subirEvento(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     if request.method == 'POST':
         form = EventoForm(request.POST)
         formset = ImagenEventoFormSet(request.POST, request.FILES)
@@ -327,7 +367,9 @@ def subirEvento(request, username, nombreEmprendimiento, idEmprendimiento):
         'miFormularioEvento': form,
         'miFormularioImagenesEvento': formset,
         'username': username,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 
@@ -337,6 +379,8 @@ def detalleEvento(request, username, nombreEmprendimiento, idEmprendimiento, idE
     evento = get_object_or_404(Evento, id=idEvento, emprendimiento=emprendimiento)
     imagenes = evento.imagenesEvento.all()
     reservas = evento.reservas.all()
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
 
     return render(request, 'eventoDetalle.html', {
         'username': username,
@@ -344,6 +388,8 @@ def detalleEvento(request, username, nombreEmprendimiento, idEmprendimiento, idE
         'imagenes': imagenes,
         'emprendimiento': emprendimiento,
         'reservas': reservas, 
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
@@ -351,6 +397,8 @@ def actualizarEvento(request, username, nombreEmprendimiento, idEmprendimiento, 
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     evento = get_object_or_404(Evento, id=idEvento, emprendimiento=emprendimiento)
     formset = ImagenEventoFormSet(queryset=ImagenEvento.objects.filter(evento=evento))
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     
     if request.method == 'POST':
         form = EventoForm(request.POST, instance=evento)
@@ -367,7 +415,9 @@ def actualizarEvento(request, username, nombreEmprendimiento, idEmprendimiento, 
         'miFormularioEvento': form,
         'miFormularioImagenesEvento': formset,
         'evento': evento,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
@@ -376,15 +426,21 @@ def verReservasEvento(request, username, nombreEmprendimiento, idEmprendimiento,
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     evento = get_object_or_404(Evento, id=idEvento, emprendimiento=emprendimiento)
     reservas = Reserva.objects.filter(evento=evento).select_related('cliente')
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
     
     return render(request, 'eventoReservas.html', {
         'evento': evento,
         'reservas': reservas,
+        'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 @login_required
 def subirContacto(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+
     if request.method == 'POST':
         form = ContactoForm(request.POST)
         formset = ImagenContactoFormSet(request.POST, request.FILES)
@@ -405,6 +461,7 @@ def subirContacto(request, username, nombreEmprendimiento, idEmprendimiento):
         'miFormularioImagenesContacto': formset,
         'username': username,
         'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
     })
 
 @login_required
@@ -412,16 +469,21 @@ def detalleContacto(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     contacto = get_object_or_404(Contacto, emprendimiento=emprendimiento)
     imagenes = contacto.imagenesContacto.all()
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+
     return render(request, 'contactoDetalle.html', {
         'contacto': contacto,
         'imagenes': imagenes,
         'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
     })
 
 @login_required
 def actualizarContacto(request, username, nombreEmprendimiento, idEmprendimiento):
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     contacto, created = Contacto.objects.get_or_create(emprendimiento=emprendimiento)
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+
     if request.method == 'POST':
         form = ContactoForm(request.POST, instance=contacto)
         formset = ImagenContactoFormSet(request.POST, request.FILES, instance=contacto)
@@ -440,6 +502,7 @@ def actualizarContacto(request, username, nombreEmprendimiento, idEmprendimiento
         'miFormularioImagenesContacto': formset,
         'contacto': contacto,
         'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
     })
 
 # para serializar los datos en el api y que permita el filtro de emprendimiento
