@@ -34,30 +34,30 @@
                         
                         {% if request.user.is_authenticated and emprendimiento %}
                             <li class="nav-item px-lg-4">
-                                <a class="nav-link text-uppercase" href="{% url 'emprendimientoHome' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Home</a>
+                                <a class="nav-link text-uppercase" href="{% url 'emprendimientoHome' username=request.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Home</a>
                             </li>
 
                             <!-- para la sección de sobreNos -->
                             {% with sobreNos_exists=emprendimiento.sobrenos_set.exists %}
                                 <li class="nav-item px-lg-4">
                                 {% if sobreNos_exists %}
-                                    <a class="nav-link text-uppercase" href="{% url 'sobreNosDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Ver Sobre Nosotros</a>
+                                    <a class="nav-link text-uppercase" href="{% url 'sobreNosDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Ver Sobre Nosotros</a>
                                 {% else %}
-                                    <a class="nav-link text-uppercase" href="{% url 'sobreNosSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Subir Sobre Nos</a>
+                                    <a class="nav-link text-uppercase" href="{% url 'sobreNosSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Subir Sobre Nos</a>
                                 {% endif %}
                                 </li>
                             {% endwith %}
 
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'menu' username=user.username nombreEmprendimiento=emprendimiento.nombre %}">Menu</a></li>
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'menu' username=user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Menu</a></li>
                             
-                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'galeria' username=user.username nombreEmprendimiento=emprendimiento.nombre %}">Eventos</a></li>  
+                            <li class="nav-item px-lg-4"><a class="nav-link text-uppercase" href="{% url 'galeria' username=user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Eventos</a></li>  
                             
                             {% with contacto_exists=emprendimiento.contacto_set.exists %}
                                 <li class="nav-item px-lg-4">
                                 {% if contacto_exists %}
-                                    <a class="nav-link text-uppercase" href="{% url 'contactoDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Ver Contacto</a>
+                                    <a class="nav-link text-uppercase" href="{% url 'contactoDetalle' username=request.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Ver Contacto</a>
                                 {% else %}
-                                    <a class="nav-link text-uppercase" href="{% url 'contactoSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre %}">Subir Contacto</a>
+                                    <a class="nav-link text-uppercase" href="{% url 'contactoSubir' username=request.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Subir Contacto</a>
                                 {% endif %}
                                 </li>
                             {% endwith %}
@@ -113,5 +113,10 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="{% static 'vendor/bootstrap/js/scripts.js' %}"></script>
+
+        {% block scripts %}
+        <!-- Bloque para que las plantillas hijas puedan añadir scripts -->
+        {% endblock %}
+
     </body>
 </html>

@@ -8,11 +8,11 @@
     <ul>
         {% for comida in comidas %}
         <li>
-            {{ comida.nombre }} - <a href="{% url 'comidaDetalle' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre id=comida.id %}">Ver Detalles</a>
+            {{ comida.nombre }} - <a href="{% url 'comidaDetalle' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id idComida=comida.id %}">Ver Detalles</a>
         </li>
         {% endfor %}
     </ul>
     {% endfor %}
-    <a href="{% url 'comidaSubir' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre %}" class="btn btn-primary">Agregar Comida</a>
+    <a href="{% url 'comidaSubir' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}" class="btn btn-primary">Agregar Comida</a>
 </div>
 {% endblock %}

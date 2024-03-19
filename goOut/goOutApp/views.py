@@ -107,7 +107,7 @@ def crearEmprendimiento(request, username):
             emprendimiento = form.save(commit=False)
             emprendimiento.emprendedor = request.user.emprendedor  # Asegúrate de que esta relación exista
             emprendimiento.save()
-            return redirect('emprendimientoHome', username=username, nombreEmprendimiento=emprendimiento.nombre)
+            return redirect('emprendimientoHome', username=username, nombreEmprendimiento=emprendimiento.nombre, id=emprendimiento.nombre)
     else:
         form = EmprendimientoForm()
     return render(request, 'emprendimientoCrear.html', {'miFormularioCrearEmprendimiento': form})
@@ -115,8 +115,8 @@ def crearEmprendimiento(request, username):
 
 # pagina de inicio despues de logueo de usuario y emprendimiento
 # vista agregada
-def emprendimientoHome(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def emprendimientoHome(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     
     # Ejemplo de obtención de productos relacionados con el emprendimiento
     #productos = Producto.objects.filter(emprendimiento=emprendimiento)
@@ -127,10 +127,10 @@ def emprendimientoHome(request, username, nombreEmprendimiento):
         #'productos': productos,  # Añadir productos al contexto
     })
 
-
+# no estoy seguro si pasar el id del emprendimiento
 @login_required
-def detalleEmprendimiento(request, username, emprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=emprendimiento.nombre, emprendedor__user__username=username)
+def detalleEmprendimiento(request, username, emprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     return render(request, 'emprendimientoDetalle.html', {'emprendimiento': emprendimiento})
 
 
@@ -148,7 +148,7 @@ def emprendimientoAgregar(request, username):
             emprendimiento = form.save(commit=False)
             emprendimiento.emprendedor = emprendedor_instance
             emprendimiento.save()
-            return redirect('emprendimientoHome', username=username, nombreEmprendimiento=emprendimiento.nombre)
+            return redirect('emprendimientoHome', username=username, nombreEmprendimiento=emprendimiento.nombre, idEmprendimiento=emprendimiento.id)
     else:
         form = EmprendimientoForm()
     
@@ -157,8 +157,8 @@ def emprendimientoAgregar(request, username):
 
 
 @login_required
-def subirSobreNos(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def subirSobreNos(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     if request.method == 'POST':
         form = SobreNosForm(request.POST)
         formset = ImagenSobreNosFormSet(request.POST, request.FILES)
@@ -170,7 +170,7 @@ def subirSobreNos(request, username, nombreEmprendimiento):
             for instance in instances:
                 instance.sobreNos = sobreNos
                 instance.save()
-            return redirect('sobreNosDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('sobreNosDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = SobreNosForm()
         formset = ImagenSobreNosFormSet()
@@ -183,8 +183,8 @@ def subirSobreNos(request, username, nombreEmprendimiento):
 
 
 @login_required
-def detalleSobreNos(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def detalleSobreNos(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     sobreNos = get_object_or_404(SobreNos, emprendimiento=emprendimiento)
     imagenes = sobreNos.imagenesSobreNos.all()
     return render(request, 'sobreNosDetalle.html', {
@@ -194,8 +194,8 @@ def detalleSobreNos(request, username, nombreEmprendimiento):
     })
 
 @login_required
-def actualizarSobreNos(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def actualizarSobreNos(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     sobreNos, created = SobreNos.objects.get_or_create(emprendimiento=emprendimiento)
 
     ImagenSobreNosFormSet = inlineformset_factory(SobreNos, ImagenSobreNos, form=ImagenSobreNosForm, extra=4, can_delete=True)
@@ -214,7 +214,7 @@ def actualizarSobreNos(request, username, nombreEmprendimiento):
                     form.instance.delete()
 
             formset.save()
-            return redirect('sobreNosDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('sobreNosDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = SobreNosForm(instance=sobreNos)
         formset = ImagenSobreNosFormSet(instance=sobreNos)
@@ -227,8 +227,8 @@ def actualizarSobreNos(request, username, nombreEmprendimiento):
     })
 
 @login_required
-def menu(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def menu(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     comidas_list = Comida.objects.filter(emprendimiento=emprendimiento).order_by('categoria')
     comidas_por_categoria = {k: list(v) for k, v in groupby(comidas_list, key=attrgetter('categoria'))}
 
@@ -239,8 +239,8 @@ def menu(request, username, nombreEmprendimiento):
     })
 
 @login_required
-def subirComida(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def subirComida(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
 
     if request.method == 'POST':
         form = ComidaForm(request.POST, request.FILES)
@@ -248,7 +248,7 @@ def subirComida(request, username, nombreEmprendimiento):
             comida = form.save(commit=False)
             comida.emprendimiento = emprendimiento
             comida.save()
-            return redirect('menu', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('menu', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         # El campo 'emprendimiento' se establece automáticamente en la vista, oculto para el usuario.
         form = ComidaForm(initial={'emprendimiento': emprendimiento})
@@ -261,9 +261,9 @@ def subirComida(request, username, nombreEmprendimiento):
 
 
 @login_required
-def detalleComida(request, username, nombreEmprendimiento, id):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
-    comida = get_object_or_404(Comida, id=id, emprendimiento=emprendimiento)
+def detalleComida(request, username, nombreEmprendimiento, idEmprendimiento, idComida):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    comida = get_object_or_404(Comida, id=idComida, emprendimiento=emprendimiento)
     return render(request, 'comidaDetalle.html', {
         'comida': comida,
         'username': username,
@@ -273,15 +273,15 @@ def detalleComida(request, username, nombreEmprendimiento, id):
 
 
 @login_required
-def actualizarComida(request, username, nombreEmprendimiento, id):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
-    comida = get_object_or_404(Comida, id=id, emprendimiento=emprendimiento)
+def actualizarComida(request, username, nombreEmprendimiento, idEmprendimiento, idComida):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    comida = get_object_or_404(Comida, id=idComida, emprendimiento=emprendimiento)
     
     if request.method == 'POST':
         form = ComidaForm(request.POST, request.FILES, instance=comida)
         if form.is_valid():
             form.save()
-            return redirect('menu', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('menu', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = ComidaForm(instance=comida)
     
@@ -293,8 +293,8 @@ def actualizarComida(request, username, nombreEmprendimiento, id):
     })
 
 @login_required
-def galeria(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def galeria(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     eventos_list = Evento.objects.filter(emprendimiento=emprendimiento).order_by('categoria')
     eventos_por_categoria = {k: list(v) for k, v in groupby(eventos_list, key=attrgetter('categoria'))}
 
@@ -306,8 +306,8 @@ def galeria(request, username, nombreEmprendimiento):
 
 
 @login_required
-def subirEvento(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def subirEvento(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     if request.method == 'POST':
         form = EventoForm(request.POST)
         formset = ImagenEventoFormSet(request.POST, request.FILES)
@@ -319,7 +319,7 @@ def subirEvento(request, username, nombreEmprendimiento):
             for instance in instances:
                 instance.evento = evento
                 instance.save()
-            return redirect('galeria', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('galeria', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = EventoForm()
         formset = ImagenEventoFormSet()
@@ -332,9 +332,9 @@ def subirEvento(request, username, nombreEmprendimiento):
 
 
 @login_required
-def detalleEvento(request, username, nombreEmprendimiento, id):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
-    evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
+def detalleEvento(request, username, nombreEmprendimiento, idEmprendimiento, idEvento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    evento = get_object_or_404(Evento, id=idEvento, emprendimiento=emprendimiento)
     imagenes = evento.imagenesEvento.all()
     reservas = evento.reservas.all()
 
@@ -347,9 +347,9 @@ def detalleEvento(request, username, nombreEmprendimiento, id):
     })
 
 @login_required
-def actualizarEvento(request, username, nombreEmprendimiento, id):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
-    evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
+def actualizarEvento(request, username, nombreEmprendimiento, idEmprendimiento, idEvento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    evento = get_object_or_404(Evento, id=idEvento, emprendimiento=emprendimiento)
     formset = ImagenEventoFormSet(queryset=ImagenEvento.objects.filter(evento=evento))
     
     if request.method == 'POST':
@@ -358,7 +358,7 @@ def actualizarEvento(request, username, nombreEmprendimiento, id):
         if form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
-            return redirect('galeria', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('galeria', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = EventoForm(instance=evento)
     
@@ -371,10 +371,10 @@ def actualizarEvento(request, username, nombreEmprendimiento, id):
     })
 
 @login_required
-def verReservasEvento(request, username, nombreEmprendimiento, id):
+def verReservasEvento(request, username, nombreEmprendimiento, idEmprendimiento, idEvento):
     # Asegúrate de que el usuario actual es el dueño del emprendimiento
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
-    evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
+    evento = get_object_or_404(Evento, id=idEvento, emprendimiento=emprendimiento)
     reservas = Reserva.objects.filter(evento=evento).select_related('cliente')
     
     return render(request, 'eventoReservas.html', {
@@ -383,8 +383,8 @@ def verReservasEvento(request, username, nombreEmprendimiento, id):
     })
 
 @login_required
-def subirContacto(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def subirContacto(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     if request.method == 'POST':
         form = ContactoForm(request.POST)
         formset = ImagenContactoFormSet(request.POST, request.FILES)
@@ -396,7 +396,7 @@ def subirContacto(request, username, nombreEmprendimiento):
                 imagen_contacto = form.save(commit=False)
                 imagen_contacto.contacto = contacto
                 imagen_contacto.save()
-            return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = ContactoForm()
         formset = ImagenContactoFormSet()
@@ -408,8 +408,8 @@ def subirContacto(request, username, nombreEmprendimiento):
     })
 
 @login_required
-def detalleContacto(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def detalleContacto(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     contacto = get_object_or_404(Contacto, emprendimiento=emprendimiento)
     imagenes = contacto.imagenesContacto.all()
     return render(request, 'contactoDetalle.html', {
@@ -419,8 +419,8 @@ def detalleContacto(request, username, nombreEmprendimiento):
     })
 
 @login_required
-def actualizarContacto(request, username, nombreEmprendimiento):
-    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+def actualizarContacto(request, username, nombreEmprendimiento, idEmprendimiento):
+    emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     contacto, created = Contacto.objects.get_or_create(emprendimiento=emprendimiento)
     if request.method == 'POST':
         form = ContactoForm(request.POST, instance=contacto)
@@ -431,7 +431,7 @@ def actualizarContacto(request, username, nombreEmprendimiento):
                 if form.instance.pk:
                     form.instance.delete()
             formset.save()
-            return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento)
+            return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = ContactoForm(instance=contacto)
         formset = ImagenContactoFormSet(instance=contacto)
@@ -466,6 +466,7 @@ class EventoViewSet(viewsets.ModelViewSet):
 # para la funcionalidad de reservas
 from rest_framework.exceptions import ValidationError
 
+# -------------------- RESERVAS ------------------------------
 class CrearReserva(generics.CreateAPIView):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
@@ -486,7 +487,18 @@ class CrearReserva(generics.CreateAPIView):
 
         serializer.save(cliente=cliente, evento=evento)
 
-# para la funcionalidad de reservas
+    # funccionalidad: devoluciosn de datos de reserva al cliente
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        
+        # Aquí asumes que serializer.data incluye toda la información que quieres devolver
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+# Para permitir que el usuario cancele la reserva que ha realizado
+# -------------------- FIN RESERVAS ------------------------------
 
 # para que al selecccionar un evento me lleve a su emprendimiento
 @api_view(['GET'])

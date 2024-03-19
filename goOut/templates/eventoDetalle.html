@@ -5,8 +5,7 @@
 
 <p>{{ evento.descripcion }}</p>
 <p>Precio: {{ evento.precio }}</p>
-<p>Disponibles: {{ evento.disponibles }}</p>
-
+<p>Disponibles: <span id="disponibles">{{ evento.disponibles }}</span></p>
 
 {% for imagen in imagenes %}
   <img src="{{ imagen.imagen.url }}" alt="Imagen del evento" />
@@ -15,7 +14,7 @@
 
 <h3>Reservas:</h3>
 {% if reservas %}
-  <ul>
+  <ul id="lista-reservas">
     {% for reserva in reservas %}
       <li>
         Usuario: {{ reserva.cliente.user.username }} - Cantidad reservada: {{ reserva.cantidad }}
@@ -27,6 +26,39 @@
   <p>No hay reservas para este evento aún.</p>
 {% endif %}
 
-<a href="{% url 'eventoActualizar' username=username nombreEmprendimiento=emprendimiento.nombre id=evento.id %}">Actualizar evento</a>
-<a href="{% url 'galeria' username=username nombreEmprendimiento=emprendimiento.nombre %}">Volver a la Galería</a>
+<a href="{% url 'eventoActualizar' username=username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id idEvento=evento.id %}">Actualizar evento</a>
+<a href="{% url 'galeria' username=username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Volver a la Galería</a>
+
+<script>
+  // Función para  la información actualizada del evento
+  function actualizarInformacionEvento() {
+      fetch("{% url 'eventoDetalle' username=username nombreEmprendimiento=emprendimiento.nombre  idEmprendimiento=emprendimiento.id idEvento=evento.id %}")  // Asegúrate de que la URL apunte a tu endpoint de API que devuelve la información actualizada del evento
+          .then(response => response.json())
+          .then(data => {
+              // Actualiza la información del evento en la página
+              document.getElementById('disponibles').textContent = data.disponibles;
+  
+              // Actualiza la lista de reservas
+              const listaReservas = document.getElementById('lista-reservas');
+              listaReservas.innerHTML = '';  // Limpia la lista actual
+              data.reservas.forEach(reserva => {
+                  const item = document.createElement('li');
+                  item.textContent = `Usuario: ${reserva.cliente.user.username} - Cantidad reservada: ${reserva.cantidad}`;
+                  listaReservas.appendChild(item);
+              });
+  
+              // Si no hay reservas, muestra un mensaje
+              if (data.reservas.length === 0) {
+                  listaReservas.innerHTML = '<p>No hay reservas para este evento aún.</p>';
+              }
+          })
+          .catch(error => console.error('Error al actualizar la información del evento:', error));
+  }
+  
+  // Establece el polling para actualizar la información cada 10 segundos (10000 milisegundos)
+  setInterval(actualizarInformacionEvento, 10000);
+  
+  document.addEventListener('DOMContentLoaded', actualizarInformacionEvento);
+  </script>
+
 {% endblock %}

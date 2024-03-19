@@ -2,14 +2,14 @@
 
 {% block content %}
 <h2>Galería de Eventos</h2>
-<a href="{% url 'eventoSubir' username=username nombreEmprendimiento=emprendimiento.nombre %}">Subir nuevo evento</a>
+<a href="{% url 'eventoSubir' username=username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Subir nuevo evento</a>
 
 {% for categoria, eventos in eventos_por_categoria.items %}
   <h3>{{ categoria }}</h3>
   <ul>
     {% for evento in eventos %}
       <li>
-        <a href="{% url 'eventoDetalle' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre id=evento.id %}">{{ evento.titulo }}</a>
+        <a href="{% url 'eventoDetalle' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id idEvento=evento.id %}">{{ evento.titulo }}</a>
         - {{ evento.precio }} - Disponibles: {{ evento.disponibles }}
       </li>
     {% endfor %}

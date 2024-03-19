@@ -9,6 +9,6 @@
             <img src="{{ imagen.imagen.url }}" alt="Imagen" style="width: 100px; height: auto;">
         {% endfor %}
     </div>
-    <a href="{% url 'sobreNosActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre %}" class="btn btn-secondary">Actualizar</a>
+    <a href="{% url 'sobreNosActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}" class="btn btn-secondary">Actualizar</a>
 </div>
 {% endblock %}
