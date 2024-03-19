@@ -7,10 +7,25 @@
 <p>Precio: {{ evento.precio }}</p>
 <p>Disponibles: {{ evento.disponibles }}</p>
 
-<!-- Muestra las imágenes del evento -->
+
 {% for imagen in imagenes %}
   <img src="{{ imagen.imagen.url }}" alt="Imagen del evento" />
 {% endfor %}
+
+
+<h3>Reservas:</h3>
+{% if reservas %}
+  <ul>
+    {% for reserva in reservas %}
+      <li>
+        Usuario: {{ reserva.cliente.user.username }} - Cantidad reservada: {{ reserva.cantidad }}
+        <!--  información del cliente -->
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No hay reservas para este evento aún.</p>
+{% endif %}
 
 <a href="{% url 'eventoActualizar' username=username nombreEmprendimiento=emprendimiento.nombre id=evento.id %}">Actualizar evento</a>
 <a href="{% url 'galeria' username=username nombreEmprendimiento=emprendimiento.nombre %}">Volver a la Galería</a>

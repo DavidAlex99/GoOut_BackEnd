@@ -62,6 +62,7 @@ urlpatterns = [
     path('<str:username>/<str:nombreEmprendimiento>/galeria/subirEvento/', views.subirEvento, name='eventoSubir'),
     path('<str:username>/<str:nombreEmprendimiento>/galeria/<int:id>/', views.detalleEvento, name='eventoDetalle'),
     path('<str:username>/<str:nombreEmprendimiento>/galeria/<int:id>/actualizarEvento/', views.actualizarEvento, name='eventoActualizar'),
+    path('<str:username>/<str:nombreEmprendimiento>/galeria/<int:id>/reservas/', views.verReservasEvento, name='eventoReservas'),
 
     path('<str:username>/<str:nombreEmprendimiento>/subirContacto/', views.subirContacto, name='contactoSubir'),
     path('<str:username>/<str:nombreEmprendimiento>/contacto/', views.detalleContacto, name='contactoDetalle'),
@@ -74,6 +75,9 @@ urlpatterns = [
     # url para la autenticacion de clientes para recibir un token
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('register/', views.register, name='register'),
+
+    # url para la funcionalidad de reservas
+    path('reservas/crear/', views.CrearReserva.as_view(), name='crear-reserva'),
 
 ]
 

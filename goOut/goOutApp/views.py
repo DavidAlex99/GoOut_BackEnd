@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .forms import EventoForm, ImagenEventoFormSet, ComidaForm, SobreNosForm, ImagenSobreNosFormSet, ContactoForm, ImagenContactoFormSet, EmprendedorRegisterForm, EmprendimientoForm, ImagenSobreNosForm
 # importacion de modelos para la visualizacion de los registros en la bbdd
-from .models import Evento, ImagenEvento, Comida, Emprendimiento, Emprendedor, ImagenContacto, Contacto, SobreNos, ImagenSobreNos, Cliente
+from .models import Evento, ImagenEvento, Comida, Emprendimiento, Emprendedor, ImagenContacto, Contacto, SobreNos, ImagenSobreNos, Cliente, Reserva
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from .forms import CustomLoginForm
@@ -20,19 +20,25 @@ from operator import attrgetter
 
 # para serialiara  traves de la API
 from rest_framework import viewsets
-from .serializers import EmprendimientoSerializer, ComidaSerializer, EventoSerializer, UserSerializer
+from .serializers import EmprendimientoSerializer, ComidaSerializer, EventoSerializer, UserSerializer, ReservaSerializer
+from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ComidaFilter, EventoFilter
 from rest_framework.response import Response    
-from rest_framework.decorators import api_view
+
 
 # para el registro de usuario
 from rest_framework.authtoken.models import Token
 from rest_framework import status
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login 
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 # fin para el registro de usuario
+
+# para serializar comidas, eventos, get emprendimiento
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 # fin para serializar  traves de la API
 
 
@@ -330,12 +336,14 @@ def detalleEvento(request, username, nombreEmprendimiento, id):
     emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
     evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
     imagenes = evento.imagenesEvento.all()
-    
+    reservas = evento.reservas.all()
+
     return render(request, 'eventoDetalle.html', {
         'username': username,
         'evento': evento,
         'imagenes': imagenes,
-        'emprendimiento': emprendimiento
+        'emprendimiento': emprendimiento,
+        'reservas': reservas, 
     })
 
 @login_required
@@ -360,6 +368,18 @@ def actualizarEvento(request, username, nombreEmprendimiento, id):
         'miFormularioImagenesEvento': formset,
         'evento': evento,
         'emprendimiento': emprendimiento
+    })
+
+@login_required
+def verReservasEvento(request, username, nombreEmprendimiento, id):
+    # Asegúrate de que el usuario actual es el dueño del emprendimiento
+    emprendimiento = get_object_or_404(Emprendimiento, nombre=nombreEmprendimiento, emprendedor__user__username=username)
+    evento = get_object_or_404(Evento, id=id, emprendimiento=emprendimiento)
+    reservas = Reserva.objects.filter(evento=evento).select_related('cliente')
+    
+    return render(request, 'eventoReservas.html', {
+        'evento': evento,
+        'reservas': reservas,
     })
 
 @login_required
@@ -443,8 +463,34 @@ class EventoViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = EventoFilter
 
+# para la funcionalidad de reservas
+from rest_framework.exceptions import ValidationError
+
+class CrearReserva(generics.CreateAPIView):
+    queryset = Reserva.objects.all()
+    serializer_class = ReservaSerializer
+
+    def perform_create(self, serializer):
+        evento_id = serializer.validated_data['evento'].id
+        evento = get_object_or_404(Evento, id=evento_id)
+        cantidad_reservada = serializer.validated_data['cantidad']
+        
+        if evento.disponibles < cantidad_reservada:
+            raise ValidationError('No hay suficientes plazas disponibles para este evento.')
+
+        evento.disponibles -= cantidad_reservada
+        evento.save()
+
+        user = self.request.user
+        cliente = get_object_or_404(Cliente, user=user)
+
+        serializer.save(cliente=cliente, evento=evento)
+
+# para la funcionalidad de reservas
+
 # para que al selecccionar un evento me lleve a su emprendimiento
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_emprendimiento(request, pk):
     try:
         emprendimiento = Emprendimiento.objects.get(pk=pk)

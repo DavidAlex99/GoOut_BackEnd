@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from .models import Emprendimiento, Emprendedor, Comida, Evento, ImagenEvento, Contacto, ImagenContacto, SobreNos, ImagenSobreNos, Cliente
+from .models import Emprendimiento, Emprendedor, Comida, Evento, ImagenEvento, Contacto, ImagenContacto, SobreNos, ImagenSobreNos, Cliente, Reserva
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import ValidationError
 
 class ImagenEventoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,10 +14,30 @@ class EventoSerializer(serializers.ModelSerializer):
     emprendimiento_id = serializers.ReadOnlyField(source='emprendimiento.id')  # Asegúrate de que 'emprendimiento' sea el nombre correcto de la relación
     emprendimiento_nombre = serializers.ReadOnlyField(source='emprendimiento.nombre')
     imagenesEvento = ImagenEventoSerializer(many=True, read_only=True)
+    id = serializers.IntegerField(read_only=True) 
 
     class Meta:
         model = Evento
-        fields = ['titulo', 'descripcion', 'categoria', 'disponibles', 'precio', 'imagenesEvento', 'created', 'updated', 'emprendimiento_id', 'emprendimiento_nombre']
+        fields = ['id', 'titulo', 'descripcion', 'categoria', 'disponibles', 'precio', 'imagenesEvento', 'created', 'updated', 'emprendimiento_id', 'emprendimiento_nombre']
+
+# para serilizar plazas de eventos
+class ReservaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reserva
+        fields = ['evento', 'cantidad']  # Simplificado para el propósito de la reserva
+
+    def create(self, validated_data):
+        # Asumiendo que el usuario autenticado está disponible como self.context['request'].user
+        user = self.context['request'].user
+        cliente = Cliente.objects.get(user=user)
+
+        # Si 'cliente' está en validated_data, lo eliminamos ya que lo estableceremos manualmente.
+        validated_data.pop('cliente', None)
+
+        # Crea la reserva con el cliente recuperado.
+        reserva = Reserva.objects.create(**validated_data, cliente=cliente)
+        return reserva
+# fin para serilizar plazas de eventos
 
 class ImagenContactoSerializer(serializers.ModelSerializer):
     class Meta:

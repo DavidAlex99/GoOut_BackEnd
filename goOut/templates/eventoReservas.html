@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Reservas para {{ evento.titulo }}</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Cantidad de Plazas Reservadas</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reserva in reservas %}
+        <tr>
+            <td>{{ reserva.cliente.user.username }}</td>
+            <td>{{ reserva.cantidad }}</td>
+            <td>
+                <!-- Ejemplo de acción para cancelar reserva -->
+                <!-- Necesitarás implementar la lógica para cancelar reservas -->
+                
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

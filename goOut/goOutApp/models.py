@@ -80,7 +80,13 @@ class Reserva(models.Model):
     # Puedes añadir más campos según sea necesario
 
     def __str__(self):
-        return f"Reserva de {self.usuario.username} para {self.evento.titulo}"    
+        return f"Reserva de {self.usuario.username} para {self.evento.titulo}" 
+
+    def cancelar(self):
+        evento = self.evento
+        evento.disponibles += self.cantidad
+        evento.save()
+        self.delete()   
 # fin subclases de galeria 
 
 class Galeria(models.Model):
