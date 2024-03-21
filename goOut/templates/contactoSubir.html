@@ -1,13 +1,60 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Subir Información de Contacto</h2>
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" id="formContacto">
   {% csrf_token %}
   {{ miFormularioContacto.as_p }}
+  <!-- Asegúrate de que estos campos estén en tu formulario de Django -->
   {{ miFormularioImagenesContacto.management_form }}
   {% for form in miFormularioImagenesContacto %}
     {{ form.as_p }}
   {% endfor %}
   <button type="submit">Guardar Contacto</button>
 </form>
+<div id="map" style="height: 400px;"></div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  // Función para inicializar el mapa
+  function initMap() {
+    // Define tu ubicación inicial para centrar el mapa
+    var initialCenter = { lat: -34.397, lng: 150.644 }; // Cambia por una ubicación por defecto relevante
+
+    // Crea un nuevo mapa y lo asigna al div con id 'map'
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 8,
+      center: initialCenter
+    });
+
+    // Crea un marcador cuando se hace clic en el mapa
+    map.addListener('click', function(event) {
+      placeMarker(event.latLng, map);
+    });
+
+    // Inicializa el marcador en null para su posterior uso
+    var marker = null;
+
+    // Función para colocar un marcador en el mapa
+    function placeMarker(location, map) {
+      // Si el marcador ya existe, cambia su ubicación
+      if (marker) {
+        marker.setPosition(location);
+      } else { // Si no existe, crea un nuevo marcador
+        marker = new google.maps.Marker({
+          position: location,
+          map: map
+        });
+      }
+      // Centra el mapa en la ubicación seleccionada
+      map.panTo(location);
+
+      // Actualiza los campos ocultos del formulario con las coordenadas del marcador
+      document.getElementById('id_latitud').value = location.lat();
+      document.getElementById('id_longitud').value = location.lng();
+    }
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn4A1mmmidT_6TOWFVZjAduv4nP4LONvI&callback=initMap"></script>
+{% endblock %}
+

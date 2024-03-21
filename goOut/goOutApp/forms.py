@@ -103,8 +103,8 @@ class ContactoForm(forms.ModelForm):
             'correo': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.NumberInput(attrs={'class': 'form-control'}),
             # campos que se va usar para la api de google maps
-            'latitud': forms.NumberInput(attrs={'class': 'form-control'}),
-            'longitud': forms.NumberInput(attrs={'class': 'form-control'}),
+            'latitud': forms.HiddenInput(),
+            'longitud': forms.HiddenInput(),
         }
 
 class ImagenContactoForm(forms.ModelForm):

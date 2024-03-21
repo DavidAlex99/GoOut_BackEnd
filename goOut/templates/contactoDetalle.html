@@ -9,26 +9,8 @@
 {% for imagen in imagenes %}
   <img src="{{ imagen.imagen.url }}" alt="Imagen de contacto" />
 {% endfor %}
-<a href="{% url 'contactoActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre %}">Actualizar Contacto</a>
+<a href="{% url 'contactoActualizar' username=emprendimiento.emprendedor.user.username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id %}">Actualizar Contacto</a>
 
 
 
-{% endblock %}
-
-{% block scripts %}
-<script>
-  function initMap() {
-    // Asegúrate de reemplazar 'TU_LATITUD' y 'TU_LONGITUD' con las variables de tu contexto de Django que contengan estos datos
-    var location = {lat: TU_LATITUD, lng: TU_LONGITUD};
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 15,
-      center: location
-    });
-    var marker = new google.maps.Marker({
-      position: location,
-      map: map
-    });
-  }
-</script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn4A1mmmidT_6TOWFVZjAduv4nP4LONvI&callback=initMap"></script>
 {% endblock %}

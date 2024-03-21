@@ -11,7 +11,7 @@
         <img src="{{ comida.imagen.url }}" alt="Imagen de {{ comida.nombre }}" width="300">
     {% endif %}
     <hr>
-    <a href="{% url 'menu' username=username nombreEmprendimiento=emprendimiento.nombre  idEmprendimiento=emprendimiento.id%}">Volver al menú</a>
+    <a href="{% url 'menu' username=username nombreEmprendimiento=emprendimiento.nombre  idEmprendimiento=emprendimiento.id %}">Volver al menú</a>
     <a href="{% url 'comidaActualizar' username=username nombreEmprendimiento=emprendimiento.nombre idEmprendimiento=emprendimiento.id idComida=comida.id %}">Actualizar Comida</a>
 </div>
 {% endblock %}

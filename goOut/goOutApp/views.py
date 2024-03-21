@@ -215,6 +215,7 @@ def actualizarSobreNos(request, username, nombreEmprendimiento, idEmprendimiento
 
     ImagenSobreNosFormSet = inlineformset_factory(SobreNos, ImagenSobreNos, form=ImagenSobreNosForm, extra=4, can_delete=True)
 
+    sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
     contacto_exists = hasattr(emprendimiento, 'contacto')
     
     if request.method == 'POST':
@@ -241,6 +242,7 @@ def actualizarSobreNos(request, username, nombreEmprendimiento, idEmprendimiento
         'miFormularioImagenesSobreNos': formset,
         'sobreNos': sobreNos,
         'emprendimiento': emprendimiento,
+        'sobreNos_exists': sobreNos_exists,
         'contacto_exists': contacto_exists,
     })
 
@@ -446,16 +448,20 @@ def subirContacto(request, username, nombreEmprendimiento, idEmprendimiento):
         formset = ImagenContactoFormSet(request.POST, request.FILES)
         if form.is_valid() and formset.is_valid():
             contacto = form.save(commit=False)
+            contacto.latitud = request.POST.get('latitud')  # Obtener latitud del POST
+            contacto.longitud = request.POST.get('longitud')  # Obtener longitud del POST
             contacto.emprendimiento = emprendimiento
             contacto.save()
             for form in formset:
-                imagen_contacto = form.save(commit=False)
-                imagen_contacto.contacto = contacto
-                imagen_contacto.save()
+                if form.cleaned_data.get('imagen'):  # Verifica si hay imagen
+                    imagen_contacto = form.save(commit=False)
+                    imagen_contacto.contacto = contacto
+                    imagen_contacto.save()
             return redirect('contactoDetalle', username=username, nombreEmprendimiento=nombreEmprendimiento, idEmprendimiento=idEmprendimiento)
     else:
         form = ContactoForm()
         formset = ImagenContactoFormSet()
+
     return render(request, 'contactoSubir.html', {
         'miFormularioContacto': form,
         'miFormularioImagenesContacto': formset,
@@ -463,6 +469,7 @@ def subirContacto(request, username, nombreEmprendimiento, idEmprendimiento):
         'emprendimiento': emprendimiento,
         'sobreNos_exists': sobreNos_exists,
     })
+
 
 @login_required
 def detalleContacto(request, username, nombreEmprendimiento, idEmprendimiento):
@@ -483,6 +490,7 @@ def actualizarContacto(request, username, nombreEmprendimiento, idEmprendimiento
     emprendimiento = get_object_or_404(Emprendimiento, id=idEmprendimiento, emprendedor__user__username=username)
     contacto, created = Contacto.objects.get_or_create(emprendimiento=emprendimiento)
     sobreNos_exists = hasattr(emprendimiento, 'sobreNos')
+    contacto_exists = hasattr(emprendimiento, 'contacto')
 
     if request.method == 'POST':
         form = ContactoForm(request.POST, instance=contacto)
@@ -503,6 +511,7 @@ def actualizarContacto(request, username, nombreEmprendimiento, idEmprendimiento
         'contacto': contacto,
         'emprendimiento': emprendimiento,
         'sobreNos_exists': sobreNos_exists,
+        'contacto_exists': contacto_exists,
     })
 
 # para serializar los datos en el api y que permita el filtro de emprendimiento
